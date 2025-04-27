@@ -11,13 +11,13 @@ function InputForm({ setLocalizedContent, setRecommendations }) {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/translate', {
+      const response = await axios.post('http://localhost:3000/translate', { // <-- updated to 3000
         content: courseContent,
         targetLanguage: language,
       });
 
-      setLocalizedContent(response.data.localizedContent);
-      setRecommendations(response.data.recommendations);
+      setLocalizedContent(response.data.localizedContent); // translated + localized content
+      setRecommendations(response.data.recommendations);   // suggested courses
     } catch (error) {
       console.error(error);
       alert('Something went wrong. Please try again.');
@@ -63,3 +63,4 @@ function InputForm({ setLocalizedContent, setRecommendations }) {
 }
 
 export default InputForm;
+
