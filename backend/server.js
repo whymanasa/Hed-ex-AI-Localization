@@ -1,8 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import translateRoute from "./routes/translateRoute.js";
-
+import { translateWithAzure } from './services/azureTranslator.js'; 
 dotenv.config();
 
 const app = express();
@@ -12,36 +11,30 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Dummy translate function (you'll replace with Azure API later)
-function dummyTranslate(content, targetLanguage) {
-  return `Translated [${targetLanguage}] version of: ${content}`;
-}
 
-// Dummy recommendation generator
-function dummyRecommendations(language) {
-  return [
-    `Recommended Course 1 for ${language}`,
-    `Recommended Course 2 for ${language}`,
-  ];
-}
 
 // POST /translate endpoint
-app.post('/translate', (req, res) => {
+app.post('/translate', async (req, res) => {
   const { content, targetLanguage } = req.body;
 
   if (!content || !targetLanguage) {
     return res.status(400).json({ error: 'Missing content or targetLanguage' });
   }
 
-  // Simulate translation
-  const localizedContent = dummyTranslate(content, targetLanguage);
+  try {
+    const localizedContent = await translateWithAzure(content, targetLanguage);
 
-  // Simulate personalized recommendations
-  const recommendations = dummyRecommendations(targetLanguage);
+    const recommendations = [
+      `Recommended Course 1 for ${targetLanguage}`,
+      `Recommended Course 2 for ${targetLanguage}`,
+    ];
 
-  // Send back response
-  res.json({ localizedContent, recommendations });
+    res.json({ localizedContent, recommendations });
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'Translation failed' });
+  }
 });
+
 
 // Start the server
 app.listen(PORT, () => {
