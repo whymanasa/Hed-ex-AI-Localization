@@ -27,16 +27,7 @@ function OutputDisplay({ localizedContent, recommendations, loading }) {
         </div>
       )}
       
-      {recommendations && (
-        <div>
-          <h2 className="text-2xl font-semibold mb-2 text-purple-600">Personalized Learning Suggestions</h2>
-          <ul className="list-disc pl-5">
-            {recommendations.split('\n').map((recommendation, index) => (
-              <li key={index} className="text-gray-700">{recommendation}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {/* Ignoring recommendations for now */}
     </div>
   );
 }

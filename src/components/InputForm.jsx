@@ -44,11 +44,11 @@ function InputForm({ setLocalizedContent, setRecommendations }) {
         required
       >
         <option value="">Select Target Language</option>
-        <option value="filipino">Filipino (Tagalog)</option>
-        <option value="indonesian">Bahasa Indonesia</option>
-        <option value="thai">Thai</option>
-        <option value="vietnamese">Vietnamese</option>
-        <option value="malay">Malay</option>
+        <option value="tl">Filipino (Tagalog)</option>
+        <option value="id">Bahasa Indonesia</option>
+        <option value="th">Thai</option>
+        <option value="vi">Vietnamese</option>
+        <option value="ms">Malay</option>
       </select>
 
       <button

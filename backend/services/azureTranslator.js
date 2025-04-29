@@ -23,6 +23,11 @@ export async function translateWithAzure(content, targetLanguage) {
     return response.data[0].translations[0].text;
   } catch (error) {
     console.error('Azure Translator Error:', error.response?.data || error.message);
+    console.error('Error details:', {
+      status: error.response?.status,
+      headers: error.response?.headers,
+      data: error.response?.data
+    });
     throw new Error('Translation failed');
   }
 }

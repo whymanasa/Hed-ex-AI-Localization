@@ -11,13 +11,18 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-
+// Add logging for incoming requests
+app.use((req, res, next) => {
+  console.log(`Received ${req.method} request for ${req.url}`);
+  next();
+});
 
 // POST /translate endpoint
 app.post('/translate', async (req, res) => {
   const { content, targetLanguage } = req.body;
 
   if (!content || !targetLanguage) {
+    console.log('Missing content or targetLanguage');
     return res.status(400).json({ error: 'Missing content or targetLanguage' });
   }
 
@@ -31,10 +36,10 @@ app.post('/translate', async (req, res) => {
 
     res.json({ localizedContent, recommendations });
   } catch (err) {
+    console.error('Error during translation:', err);
     res.status(500).json({ error: err.message || 'Translation failed' });
   }
 });
-
 
 // Start the server
 app.listen(PORT, () => {
