@@ -1,7 +1,7 @@
-// services/azureTranslator.js
-
 import axios from 'axios';
+import { AzureOpenAI } from 'openai';
 
+// Language name mapping for localization context
 const languageNameMap = {
   tl: 'Tagalog (Filipino)',
   id: 'Bahasa Indonesia',
@@ -10,7 +10,18 @@ const languageNameMap = {
   ms: 'Malay',
 };
 
-// Step 1: Translate using Azure Translator
+// OpenAI SDK configuration
+const apiKey = process.env.AZURE_OPENAI_KEY;
+const apiVersion = '2024-04-01-preview';
+const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
+const deployment = process.env.AZURE_OPENAI_DEPLOYMENT;
+const modelName = process.env.AZURE_OPENAI_MODEL_NAME;
+
+const client = new AzureOpenAI({ endpoint, apiKey, deployment, apiVersion });
+
+/**
+ * STEP 1: Translate using Azure Translator
+ */
 export async function translateWithAzure(content, targetLanguage) {
   try {
     const response = await axios({
@@ -30,62 +41,54 @@ export async function translateWithAzure(content, targetLanguage) {
     });
 
     const translatedText = response.data[0].translations[0].text;
-    
 
-    // Step 2: Culturally localize using Azure OpenAI
+    // STEP 2: Localize the translated content
     const culturallyLocalized = await localizeWithOpenAI(translatedText, targetLanguage);
-    console.log(culturallyLocalized);
+
     return culturallyLocalized;
-   
   } catch (error) {
     console.error('Azure Translator Error:', error.response?.data || error.message);
-    console.error('Error details:', {
-      status: error.response?.status,
-      headers: error.response?.headers,
-      data: error.response?.data
-    });
     throw new Error(`Translation failed: ${error.response?.data?.error?.message || error.message}`);
   }
 }
 
-// Step 2 Helper Function — Localize with Azure OpenAI
+/**
+ * STEP 2: Localize the translated content using Azure OpenAI
+ */
 async function localizeWithOpenAI(translatedText, language) {
   try {
-    const endpoint = `https://hedex-gpt4o-openai.openai.azure.com/openai/deployments/gpt-4o/chat/completions?api-version=2025-01-01-preview`
-    const headers = {
-      'Content-Type': 'application/json',
-      'api-key': process.env.AZURE_OPENAI_KEY,
-    };
-
     const systemPrompt = `
-You are an expert in educational content localization and adaptation. Your task is to adjust the following academic text so it is culturally and contextually relevant for students in ${languageNameMap[language] || 'the target culture'}.
+You are an expert in educational content localization and adaptation. Your job is to modify academic text so that it resonates culturally, emotionally, and contextually with students in the target region.
 
-Your localization should include:
-- Substituting cultural references with local equivalents (e.g., animals, places, food, festivals).
-- Adapting terminology to align with the target culture's language usage.
-- Modifying examples to fit the context of the local culture.
-- Ensuring that the original message and learning objective remain intact while making it sound natural and engaging for the local audience.
+You must:
+- Replace cultural references (like trees, animals, food, places) with local equivalents.
+- Modify names of countries, crops, festivals, or items to match what is familiar in the target culture.
+- Ensure the meaning and learning objective remain unchanged.
+- Make the tone natural, age-appropriate, and locally relatable.
 
-Example:
-"The tall oak trees in Europe are essential for forests and can be seen during autumn."
-Localized: "Di Indonesia, pohon jati tinggi sangat penting untuk hutan, terutama saat musim hujan."
+📌 Example:
+Original (English): "Photosynthesis is the process by which plants like maple and oak trees use sunlight, water, and carbon dioxide to make their own food. Farmers in Canada grow crops that rely on sunlight."
 
-Now, please localize the following text for students in ${languageNameMap[language] || 'the target culture'}:
+Localized for Indonesia:
+"Fotosintesis adalah proses di mana tanaman seperti pohon pisang dan jati menggunakan sinar matahari, air, dan karbon dioksida untuk menghasilkan makanan mereka sendiri. Di Indonesia, petani menanam padi dan sayuran yang membutuhkan cahaya matahari untuk tumbuh dengan baik."
+
+Now, localize the following text for students in ${languageNameMap[language] || 'the target culture'}:
 `;
 
-    const data = {
-      model: process.env.AZURE_OPENAI_MODEL, // ✅ REQUIRED FIELD
+    const response = await client.chat.completions.create({
       messages: [
         { role: 'system', content: systemPrompt },
-        { role: 'user', content: translatedText },
+        { role: 'user', content: translatedText }
       ],
       temperature: 0.7,
-    };
+      max_tokens: 2048,
+      model: modelName,
+    });
 
-    const response = await axios.post(endpoint, data, { headers });
-    return response.data.choices[0].message.content;
+    return response.choices[0].message.content;
   } catch (error) {
-    console.error('Azure OpenAI Error:', error.response?.data || error.message);
-    throw new Error(`Cultural localization failed: ${error.response?.data?.error?.message || error.message}`);
+    console.error('Azure OpenAI SDK Error:', error);
+    throw new Error(`Cultural localization failed: ${error.message}`);
   }
 }
+
