@@ -1,7 +1,18 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import axios from 'axios';
 import { AzureOpenAI } from 'openai';
 
-// Language name mapping for localization context
+// Azure OpenAI config
+const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
+const apiKey = process.env.AZURE_OPENAI_KEY;
+const deployment = process.env.AZURE_OPENAI_DEPLOYMENT;
+const modelName = deployment;
+const apiVersion = process.env.AZURE_OPENAI_API_VERSION;
+
+const client = new AzureOpenAI({ endpoint, apiKey, deployment, apiVersion });
+
+// Language display names
 const languageNameMap = {
   tl: 'Tagalog (Filipino)',
   id: 'Bahasa Indonesia',
@@ -10,18 +21,7 @@ const languageNameMap = {
   ms: 'Malay',
 };
 
-// OpenAI SDK configuration
-const apiKey = process.env.AZURE_OPENAI_KEY;
-const apiVersion = '2024-04-01-preview';
-const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
-const deployment = process.env.AZURE_OPENAI_DEPLOYMENT;
-const modelName = process.env.AZURE_OPENAI_MODEL_NAME;
-
-const client = new AzureOpenAI({ endpoint, apiKey, deployment, apiVersion });
-
-/**
- * STEP 1: Translate using Azure Translator
- */
+// 1. Azure Translator → 2. OpenAI Localizer
 export async function translateWithAzure(content, targetLanguage) {
   try {
     const response = await axios({
@@ -41,10 +41,7 @@ export async function translateWithAzure(content, targetLanguage) {
     });
 
     const translatedText = response.data[0].translations[0].text;
-
-    // STEP 2: Localize the translated content
     const culturallyLocalized = await localizeWithOpenAI(translatedText, targetLanguage);
-
     return culturallyLocalized;
   } catch (error) {
     console.error('Azure Translator Error:', error.response?.data || error.message);
@@ -52,12 +49,9 @@ export async function translateWithAzure(content, targetLanguage) {
   }
 }
 
-/**
- * STEP 2: Localize the translated content using Azure OpenAI
- */
-async function localizeWithOpenAI(translatedText, language) {
-  try {
-    const systemPrompt = `
+// OpenAI localizer
+async function localizeWithOpenAI(inputText, targetLanguage) {
+  const systemPrompt = `
 You are an expert in educational content localization and adaptation. Your job is to modify academic text so that it resonates culturally, emotionally, and contextually with students in the target region.
 
 You must:
@@ -72,23 +66,18 @@ Original (English): "Photosynthesis is the process by which plants like maple an
 Localized for Indonesia:
 "Fotosintesis adalah proses di mana tanaman seperti pohon pisang dan jati menggunakan sinar matahari, air, dan karbon dioksida untuk menghasilkan makanan mereka sendiri. Di Indonesia, petani menanam padi dan sayuran yang membutuhkan cahaya matahari untuk tumbuh dengan baik."
 
-Now, localize the following text for students in ${languageNameMap[language] || 'the target culture'}:
+Now, localize the following text for students in ${languageNameMap[targetLanguage] || 'the target culture'}:
 `;
 
-    const response = await client.chat.completions.create({
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: translatedText }
-      ],
-      temperature: 0.7,
-      max_tokens: 2048,
-      model: modelName,
-    });
+  const response = await client.chat.completions.create({
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: inputText }
+    ],
+    model: modelName,
+    temperature: 0.7,
+    max_tokens: 2048,
+  });
 
-    return response.choices[0].message.content;
-  } catch (error) {
-    console.error('Azure OpenAI SDK Error:', error);
-    throw new Error(`Cultural localization failed: ${error.message}`);
-  }
+  return response.choices[0].message.content;
 }
-
