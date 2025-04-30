@@ -11,13 +11,13 @@ function InputForm({ setLocalizedContent, setRecommendations }) {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:3000/translate', { // <-- updated to 3000
+      const response = await axios.post('http://localhost:3000/translate', {
         content: courseContent,
         targetLanguage: language,
       });
 
-      setLocalizedContent(response.data.localizedContent); // translated + localized content
-      setRecommendations(response.data.recommendations);   // suggested courses
+      setLocalizedContent(response.data.localizedContent);
+      setRecommendations(response.data.recommendations);
     } catch (error) {
       console.error(error);
       alert('Something went wrong. Please try again.');
@@ -44,11 +44,11 @@ function InputForm({ setLocalizedContent, setRecommendations }) {
         required
       >
         <option value="">Select Target Language</option>
-        <option value="tl">Filipino (Tagalog)</option>
         <option value="id">Bahasa Indonesia</option>
+        <option value="ms">Malay</option>
         <option value="th">Thai</option>
         <option value="vi">Vietnamese</option>
-        <option value="ms">Malay</option>
+        <option value="tl">Filipino (Tagalog)</option>
       </select>
 
       <button
@@ -63,4 +63,5 @@ function InputForm({ setLocalizedContent, setRecommendations }) {
 }
 
 export default InputForm;
+
 
