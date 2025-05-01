@@ -20,49 +20,28 @@ app.use((req, res, next) => {
 
 // POST /translate endpoint
 app.post('/translate', async (req, res) => {
-  const { content, targetLanguage } = req.body;
+  const { content, targetLanguage, profile } = req.body;
 
-  if (!content || !targetLanguage) {
-    console.log('Missing content or targetLanguage');
-    return res.status(400).json({ error: 'Missing content or targetLanguage' });
+  if (!content || !targetLanguage || !profile) {
+    console.log('Missing content, targetLanguage, or profile');
+    return res.status(400).json({ error: 'Missing content, targetLanguage, or profile' });
   }
 
   try {
+    // First, translate the content
     const localizedContent = await translateWithAzure(content, targetLanguage);
 
-    const recommendations = [
-      `Recommended Course 1 for ${targetLanguage}`,
-      `Recommended Course 2 for ${targetLanguage}`,
-    ];
+    // Generate recommendations based on content and profile
+    const recommendations = await getLearningRecommendations(content, profile);
 
     res.json({ localizedContent, recommendations });
+
   } catch (err) {
-    console.error('Error during translation:', err);
-    res.status(500).json({ error: err.message || 'Translation failed' });
+    console.error('Error during translation and recommendation:', err);
+    res.status(500).json({ error: 'Translation and recommendation failed' });
   }
 });
 
-// POST /recommend endpoint for learning recommendations
-// POST /recommendations endpoint in server.js
-
-// POST /recommendations endpoint in server.js
-app.post('/recommendations', async (req, res) => {
-  const { country, age, learningStyle } = req.body;
-
-  if (!country || !age || !learningStyle) {
-    console.log('Missing required profile data');
-    return res.status(400).json({ error: 'Missing required profile data' });
-  }
-
-  try {
-    // Generate recommendations based on the profile data
-    const recommendations = await getLearningRecommendations({ country, age, learningStyle });
-    res.json({ recommendations });
-  } catch (error) {
-    console.error('Error generating recommendations:', error);
-    res.status(500).json({ error: 'Failed to generate recommendations.' });
-  }
-});
 
 
 // Start the server

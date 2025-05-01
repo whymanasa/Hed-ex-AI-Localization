@@ -1,71 +1,72 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-
-const UserProfileForm = ({ onProfileSubmit }) => {
-  const [profile, setProfile] = useState({
-    country: '',
-    age: '',
-    learningStyle: '',
+function UserProfileForm({ onProfileSubmit }) {
+  // Load profile data from localStorage or set defaults
+  const [country, setCountry] = useState(() => {
+    const savedProfile = localStorage.getItem('userProfile');
+    return savedProfile ? JSON.parse(savedProfile).country : '';
+  });
+  
+  const [age, setAge] = useState(() => {
+    const savedProfile = localStorage.getItem('userProfile');
+    return savedProfile ? JSON.parse(savedProfile).age : '';
   });
 
-  const handleChange = (e) => {
-    setProfile({ ...profile, [e.target.name]: e.target.value });
-  };
+  const [learningStyle, setLearningStyle] = useState(() => {
+    const savedProfile = localStorage.getItem('userProfile');
+    return savedProfile ? JSON.parse(savedProfile).learningStyle : '';
+  });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onProfileSubmit(profile); // Pass profile data to parent
+
+    const profile = { country, age, learningStyle };
+
+    // Store profile in localStorage
+    localStorage.setItem('userProfile', JSON.stringify(profile));
+
+    // Call the callback function to pass profile data back to the parent component
+    onProfileSubmit(profile);
   };
 
   return (
-    <div className="bg-white shadow-md rounded p-6 mt-6">
-      <h2 className="text-xl font-semibold mb-4">User Profile</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block mb-1 font-medium">Country</label>
-          <input
-            type="text"
-            name="country"
-            value={profile.country}
-            onChange={handleChange}
-            className="w-full border px-3 py-2 rounded"
-            required
-          />
-        </div>
-        <div>
-          <label className="block mb-1 font-medium">Age</label>
-          <input
-            type="number"
-            name="age"
-            value={profile.age}
-            onChange={handleChange}
-            className="w-full border px-3 py-2 rounded"
-            required
-          />
-        </div>
-        <div>
-          <label className="block mb-1 font-medium">Learning Style</label>
-          <select
-            name="learningStyle"
-            value={profile.learningStyle}
-            onChange={handleChange}
-            className="w-full border px-3 py-2 rounded"
-            required
-          >
-            <option value="">Select</option>
-            <option value="visual">Visual</option>
-            <option value="auditory">Auditory</option>
-            <option value="kinesthetic">Kinesthetic</option>
-            <option value="reading/writing">Reading/Writing</option>
-          </select>
-        </div>
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
-          Save Profile
-        </button>
-      </form>
-    </div>
+    <form onSubmit={handleSubmit} className="bg-white p-6 rounded-xl shadow-md mb-8">
+      <input
+        type="text"
+        className="w-full p-3 border border-gray-300 rounded-md mb-4"
+        placeholder="Country"
+        value={country}
+        onChange={(e) => setCountry(e.target.value)}
+        required
+      />
+      <input
+        type="number"
+        className="w-full p-3 border border-gray-300 rounded-md mb-4"
+        placeholder="Age"
+        value={age}
+        onChange={(e) => setAge(e.target.value)}
+        required
+      />
+      <select
+        className="w-full p-3 border border-gray-300 rounded-md mb-4"
+        value={learningStyle}
+        onChange={(e) => setLearningStyle(e.target.value)}
+        required
+      >
+        <option value="">Select Learning Style</option>
+        <option value="Visual">Visual</option>
+        <option value="Auditory">Auditory</option>
+        <option value="Kinesthetic">Kinesthetic</option>
+      </select>
+
+      <button
+        type="submit"
+        className="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700"
+      >
+        Save Profile
+      </button>
+    </form>
   );
-};
+}
 
 export default UserProfileForm;
-

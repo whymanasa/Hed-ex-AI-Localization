@@ -15,9 +15,10 @@ export async function getLearningRecommendations(profile) {
   const { country, age, learningStyle } = profile;
 
   const prompt = `
-You are an expert in educational design for Southeast Asia. 
-Recommend a culturally relevant learning strategy for a ${age}-year-old student from ${country} who prefers ${learningStyle} learning.
-Include local examples or analogies that would make learning engaging for the student.
+Based on the following content: "${content}",
+and for a student from ${country}, aged ${age}, who prefers ${learningStyle} learning,
+suggest 3 localized learning materials aligned with SEA curriculum.
+Return generated suggestions.
 `;
 
   try {
@@ -31,7 +32,7 @@ Include local examples or analogies that would make learning engaging for the st
       max_tokens: 800,
     });
 
-    return response.choices[0].message.content;
+    return response.choices[0].message.content;  // Return the generated suggestions
   } catch (error) {
     console.error("OpenAI Error:", error);
     return "Failed to generate recommendation.";

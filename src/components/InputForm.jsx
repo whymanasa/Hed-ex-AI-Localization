@@ -1,23 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 function InputForm({ setLocalizedContent, setRecommendations }) {
   const [courseContent, setCourseContent] = useState('');
   const [language, setLanguage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [userProfile, setUserProfile] = useState(null);
+
+  useEffect(() => {
+    // Retrieve user profile from localStorage when the component mounts
+    const storedProfile = localStorage.getItem('userProfile');
+    if (storedProfile) {
+      setUserProfile(JSON.parse(storedProfile));
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!userProfile) {
+      alert("Please complete your profile first.");
+      return;
+    }
+
     setLoading(true);
 
     try {
+      // Send both content and profile data to the backend
       const response = await axios.post('http://localhost:3000/translate', {
         content: courseContent,
         targetLanguage: language,
+        profile: userProfile, // Use the retrieved profile data here
       });
 
       setLocalizedContent(response.data.localizedContent);
-      setRecommendations(response.data.recommendations);
+      setRecommendations(response.data.recommendations); // The recommendations are from the backend
+
     } catch (error) {
       console.error(error);
       alert('Something went wrong. Please try again.');
@@ -63,5 +81,6 @@ function InputForm({ setLocalizedContent, setRecommendations }) {
 }
 
 export default InputForm;
+
 
 

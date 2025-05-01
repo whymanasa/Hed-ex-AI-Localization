@@ -26,10 +26,20 @@ function OutputDisplay({ localizedContent, recommendations, loading }) {
           <p className="text-gray-700 whitespace-pre-wrap">{localizedContent}</p>
         </div>
       )}
-      
-      {/* Ignoring recommendations for now */}
+
+      {recommendations && recommendations.length > 0 && (
+        <div className="mb-6">
+          <h2 className="text-2xl font-semibold mb-2 text-blue-600">Learning Recommendations</h2>
+          <ul className="list-disc pl-5 text-gray-700">
+            {recommendations.map((rec, index) => (
+              <li key={index}>{rec}</li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
 
 export default OutputDisplay;
+
