@@ -28,10 +28,10 @@ app.post('/translate', async (req, res) => {
   }
 
   try {
-    // First, translate the content
+    
     const localizedContent = await translateWithAzure(content, targetLanguage);
 
-    // Generate recommendations based on content and profile
+    
     const recommendations = await getLearningRecommendations(content, profile);
 
     res.json({ localizedContent, recommendations });

@@ -51,6 +51,7 @@ export async function translateWithAzure(content, targetLanguage) {
 
 // OpenAI localizer
 async function localizeWithOpenAI(inputText, targetLanguage) {
+ 
   const systemPrompt = `
 You are an expert in educational content localization and adaptation. Your job is to modify academic text so that it resonates culturally, emotionally, and contextually with students in the target region.
 

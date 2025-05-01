@@ -1,7 +1,7 @@
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
 
 function OutputDisplay({ localizedContent, recommendations, loading }) {
-  // If no content and recommendations are available, show loading state or empty message
   if (loading) {
     return (
       <div className="bg-white p-6 rounded-xl shadow-md">
@@ -27,14 +27,12 @@ function OutputDisplay({ localizedContent, recommendations, loading }) {
         </div>
       )}
 
-      {recommendations && recommendations.length > 0 && (
+      {recommendations && (
         <div className="mb-6">
-          <h2 className="text-2xl font-semibold mb-2 text-blue-600">Learning Recommendations</h2>
-          <ul className="list-disc pl-5 text-gray-700">
-            {recommendations.map((rec, index) => (
-              <li key={index}>{rec}</li>
-            ))}
-          </ul>
+          <h2 className="text-2xl font-semibold mb-2 text-blue-600">Localized Learning Materials</h2>
+          <div className="prose prose-sm max-w-none text-gray-700">
+            <ReactMarkdown>{recommendations}</ReactMarkdown>
+          </div>
         </div>
       )}
     </div>

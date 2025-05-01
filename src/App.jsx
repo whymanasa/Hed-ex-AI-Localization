@@ -29,26 +29,6 @@ function App() {
   // Function to handle profile form submission
   const handleProfileSubmit = async (profileData) => {
     setUserProfile(profileData);
-    
-    try {
-      // Send the profile data to the backend API
-      const response = await fetch('http://localhost:3000/recommendations', {  // Replace with your API endpoint
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(profileData),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch recommendations');
-      }
-
-      const result = await response.json();
-      setRecommendations(result.recommendations);  // Assuming the backend returns recommendations
-    } catch (err) {
-      console.error("Error fetching recommendations:", err);
-    }
   };
 
   return (
