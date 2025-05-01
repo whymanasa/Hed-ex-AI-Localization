@@ -1,20 +1,17 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-
 import InputForm from './components/InputForm';
 import OutputDisplay from './components/OutputDisplay';
 import UserProfileForm from './components/UserProfileForm';
 
-function Home() {
-  const [localizedContent, setLocalizedContent] = React.useState('');
-  const [recommendations, setRecommendations] = React.useState('');
-
+function Home({ localizedContent, setLocalizedContent, recommendations, setRecommendations, userProfile }) {
   return (
     <div className="max-w-3xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6 text-blue-600">Hex Ed: SEA Course Localizer</h1>
       <InputForm 
         setLocalizedContent={setLocalizedContent} 
         setRecommendations={setRecommendations}
+        userProfile={userProfile}
       />
       <OutputDisplay 
         localizedContent={localizedContent} 
@@ -25,6 +22,35 @@ function Home() {
 }
 
 function App() {
+  const [localizedContent, setLocalizedContent] = React.useState('');
+  const [recommendations, setRecommendations] = React.useState('');
+  const [userProfile, setUserProfile] = React.useState(null);
+
+  // Function to handle profile form submission
+  const handleProfileSubmit = async (profileData) => {
+    setUserProfile(profileData);
+    
+    try {
+      // Send the profile data to the backend API
+      const response = await fetch('http://localhost:3000/recommendations', {  // Replace with your API endpoint
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(profileData),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch recommendations');
+      }
+
+      const result = await response.json();
+      setRecommendations(result.recommendations);  // Assuming the backend returns recommendations
+    } catch (err) {
+      console.error("Error fetching recommendations:", err);
+    }
+  };
+
   return (
     <Router>
       <nav className="bg-blue-700 text-white px-6 py-4 flex justify-between">
@@ -36,13 +62,32 @@ function App() {
       </nav>
 
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/profile" element={<UserProfileForm />} />
+        <Route 
+          path="/" 
+          element={
+            <Home 
+              localizedContent={localizedContent}
+              setLocalizedContent={setLocalizedContent}
+              recommendations={recommendations}
+              setRecommendations={setRecommendations}
+              userProfile={userProfile}
+            />
+          } 
+        />
+        <Route 
+          path="/profile" 
+          element={
+            <UserProfileForm onProfileSubmit={handleProfileSubmit} />
+          } 
+        />
       </Routes>
     </Router>
   );
 }
 
 export default App;
+
+
+
 
 
