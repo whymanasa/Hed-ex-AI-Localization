@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 
 function InputForm({ setLocalizedContent, setRecommendations }) {
+  const { t } = useTranslation();
   const [courseContent, setCourseContent] = useState('');
   const [language, setLanguage] = useState('');
   const [loading, setLoading] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
 
   useEffect(() => {
-    // Retrieve user profile from localStorage when the component mounts
     const storedProfile = localStorage.getItem('userProfile');
     if (storedProfile) {
       setUserProfile(JSON.parse(storedProfile));
@@ -26,16 +27,14 @@ function InputForm({ setLocalizedContent, setRecommendations }) {
     setLoading(true);
 
     try {
-      // Send both content and profile data to the backend
       const response = await axios.post('http://localhost:3000/translate', {
         content: courseContent,
         targetLanguage: language,
-        profile: userProfile, // Use the retrieved profile data here
+        profile: userProfile,
       });
 
       setLocalizedContent(response.data.localizedContent);
-      setRecommendations(response.data.recommendations); // The recommendations are from the backend
-
+      setRecommendations(response.data.recommendations);
     } catch (error) {
       console.error(error);
       alert('Something went wrong. Please try again.');
@@ -49,7 +48,7 @@ function InputForm({ setLocalizedContent, setRecommendations }) {
       <textarea
         className="w-full p-3 border border-gray-300 rounded-md mb-4"
         rows="6"
-        placeholder="Paste your course content here..."
+        placeholder={t("paste_course_content")}
         value={courseContent}
         onChange={(e) => setCourseContent(e.target.value)}
         required
@@ -61,7 +60,7 @@ function InputForm({ setLocalizedContent, setRecommendations }) {
         onChange={(e) => setLanguage(e.target.value)}
         required
       >
-        <option value="">Select Target Language</option>
+        <option value="">{t("select_target_language")}</option>
         <option value="id">Bahasa Indonesia</option>
         <option value="ms">Malay</option>
         <option value="th">Thai</option>
@@ -74,13 +73,14 @@ function InputForm({ setLocalizedContent, setRecommendations }) {
         className="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700"
         disabled={loading}
       >
-        {loading ? 'Processing...' : 'Translate and Localize'}
+        {loading ? t("processing") : t("translate_button")}
       </button>
     </form>
   );
 }
 
 export default InputForm;
+
 
 
 
