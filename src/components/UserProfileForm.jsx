@@ -23,7 +23,7 @@ const UserProfileForm = ({ onProfileSubmit }) => {
     e.preventDefault();
     onProfileSubmit(profileData);
     localStorage.setItem("userProfile", JSON.stringify(profileData));
-    navigate("/");
+    navigate("/home");
   };
 
   return (
