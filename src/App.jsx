@@ -5,7 +5,7 @@ import OutputDisplay from './components/OutputDisplay';
 import UserProfileForm from './components/UserProfileForm';
 import LanguageSelectorLanding from './components/LanguageSelectorLanding';
 
-function Home({ localizedContent, setLocalizedContent, recommendations, setRecommendations, userProfile, preferredLanguage }) {
+function Home({ localizedContent, setLocalizedContent, userProfile, preferredLanguage }) {
   if (!preferredLanguage) {
     return <Navigate to="/language" replace />;
   }
@@ -15,14 +15,12 @@ function Home({ localizedContent, setLocalizedContent, recommendations, setRecom
       <h1 className="text-3xl font-bold mb-6 text-blue-600">Hex Ed: SEA Course Localizer</h1>
       <InputForm 
         setLocalizedContent={setLocalizedContent} 
-        setRecommendations={setRecommendations}
         userProfile={userProfile}
         preferredLanguage={preferredLanguage}
       />
       <OutputDisplay 
         localizedContent={localizedContent} 
-        recommendations={recommendations}
-        preferredLanguage={preferredLanguage}
+        language={preferredLanguage}
       />
     </div>
   );
@@ -30,15 +28,18 @@ function Home({ localizedContent, setLocalizedContent, recommendations, setRecom
 
 function App() {
   const [localizedContent, setLocalizedContent] = useState('');
-  const [recommendations, setRecommendations] = useState('');
-  const [userProfile, setUserProfile] = useState(() => {
-    const saved = sessionStorage.getItem('userProfile');
-    return saved ? JSON.parse(saved) : null;
-  });
+  const [userProfile, setUserProfile] = useState(null);
   
   const [preferredLanguage, setPreferredLanguage] = useState(() => {
     return sessionStorage.getItem('preferredLanguage') || '';
   });
+
+  useEffect(() => {
+    const storedProfile = sessionStorage.getItem('userProfile');
+    if (storedProfile) {
+      setUserProfile(JSON.parse(storedProfile));
+    }
+  }, []);
 
   const handleLanguageSelect = (langCode) => {
     setPreferredLanguage(langCode);
@@ -47,6 +48,7 @@ function App() {
 
   const handleProfileSubmit = (profileData) => {
     setUserProfile(profileData);
+    setPreferredLanguage(profileData.preferredLanguage);
   };
 
   return (
@@ -78,8 +80,6 @@ function App() {
           <Home
             localizedContent={localizedContent}
             setLocalizedContent={setLocalizedContent}
-            recommendations={recommendations}
-            setRecommendations={setRecommendations}
             userProfile={userProfile}
             preferredLanguage={preferredLanguage}
           />

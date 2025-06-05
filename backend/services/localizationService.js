@@ -1,180 +1,159 @@
-const { FormRecognizerClient, AzureKeyCredential } = require('@azure/ai-form-recognizer');
-const { TranslatorClient, AzureKeyCredential: TranslatorCredential } = require('@azure/ai-translator');
-const { ComputerVisionClient } = require('@azure/cognitiveservices-computervision');
-const { OpenAIClient } = require('@azure/openai');
-const fs = require('fs').promises;
+import axios from 'axios';
+import dotenv from 'dotenv';
+import { DocumentAnalysisClient, AzureKeyCredential } from "@azure/ai-form-recognizer";
+
+dotenv.config();
 
 class LocalizationService {
     constructor() {
-        // Initialize Azure clients
-        this.formRecognizerClient = new FormRecognizerClient(
-            process.env.AZURE_FORM_RECOGNIZER_ENDPOINT,
-            new AzureKeyCredential(process.env.AZURE_FORM_RECOGNIZER_KEY)
-        );
+        // Azure Translator configuration
+        this.translatorEndpoint = process.env.AZURE_TRANSLATOR_ENDPOINT;
+        this.translatorKey = process.env.AZURE_TRANSLATOR_KEY;
+        this.translatorRegion = process.env.AZURE_TRANSLATOR_REGION;
+        
+        // OpenAI configuration
+        this.openAIEndpoint = process.env.AZURE_OPENAI_ENDPOINT;
+        this.openAIKey = process.env.AZURE_OPENAI_KEY;
+        this.openAIDeployment = process.env.AZURE_OPENAI_DEPLOYMENT;
+        this.openAIVersion = process.env.AZURE_OPENAI_API_VERSION;
 
-        this.translatorClient = new TranslatorClient(
-            process.env.AZURE_TRANSLATOR_ENDPOINT,
-            new TranslatorCredential(process.env.AZURE_TRANSLATOR_KEY)
-        );
-
-        this.visionClient = new ComputerVisionClient(
-            new AzureKeyCredential(process.env.AZURE_VISION_KEY),
-            process.env.AZURE_VISION_ENDPOINT
-        );
-
-        this.openAIClient = new OpenAIClient(
-            process.env.AZURE_OPENAI_ENDPOINT,
-            new AzureKeyCredential(process.env.AZURE_OPENAI_KEY)
-        );
-
-        // List of OpenAI supported SEA languages
-        this.openAISupportedLanguages = [
-            'en',    // English (commonly used in SEA)
-            'id',    // Indonesian
-            'ms',    // Malay
-            'th',    // Thai
-            'vi',    // Vietnamese
-            'fil',   // Filipino
-            'km',    // Khmer
-            'lo',    // Lao
-            'my',    // Burmese
-            'zh',    // Chinese (for Singapore and Malaysia)
-            'ta',    // Tamil (for Singapore)
-            'hi'     // Hindi (for Singapore)
-        ];
+        // Azure Form Recognizer configuration
+        this.formRecognizerEndpoint = process.env.AZURE_FORM_RECOGNIZER_ENDPOINT;
+        this.formRecognizerKey = process.env.AZURE_FORM_RECOGNIZER_KEY;
+        
+        if (this.formRecognizerEndpoint && this.formRecognizerKey) {
+            this.formRecognizerClient = new DocumentAnalysisClient(
+                this.formRecognizerEndpoint,
+                new AzureKeyCredential(this.formRecognizerKey)
+            );
+        }
     }
 
-    // Helper method to check if a language is supported by OpenAI
-    isLanguageSupported(language) {
-        return this.openAISupportedLanguages.includes(language.toLowerCase());
+    // Language display names for cultural localization
+    languageNameMap = {
+        'fil': 'Filipino',
+        'id': 'Bahasa Indonesia',
+        'th': 'Thai',
+        'vi': 'Vietnamese',
+        'ms': 'Malay',
+        'en': 'English',
+        'km': 'Khmer',
+        'lo': 'Lao',
+        'my': 'Burmese',
+        'zh': 'Chinese',
+        'ta': 'Tamil',
+        'hi': 'Hindi'
+    };
+
+    // List of languages supported by OpenAI
+    openAISupportedLanguages = [
+        'en',    // English
+        'id',    // Indonesian
+        'ms',    // Malay
+        'th',    // Thai
+        'vi',    // Vietnamese
+        'fil',   // Filipino
+        'km',    // Khmer
+        'lo',    // Lao
+        'my',    // Burmese
+        'zh',    // Chinese
+        'ta',    // Tamil
+        'hi'     // Hindi
+    ];
+
+    isLanguageSupported(languageCode) {
+        return this.openAISupportedLanguages.includes(languageCode);
     }
 
-    // Process PDF input
-    async processPDF(filePath) {
+    async processInput(input, type) {
         try {
-            const fileBuffer = await fs.readFile(filePath);
-            const poller = await this.formRecognizerClient.beginRecognizeContent(fileBuffer);
-            const result = await poller.pollUntilDone();
-
-            const extractedContent = {
-                text: [],
-                images: []
-            };
-
-            for (const page of result.pages) {
-                // Extract text
-                for (const line of page.lines) {
-                    extractedContent.text.push(line.text);
-                }
-
-                // Extract images if present
-                if (page.images && page.images.length > 0) {
-                    for (const image of page.images) {
-                        extractedContent.images.push({
-                            boundingBox: image.boundingBox,
-                            confidence: image.confidence
-                        });
-                    }
-                }
+            let text;
+            switch (type) {
+                case 'text':
+                    text = input;
+                    break;
+                case 'pdf':
+                    text = await this.extractTextFromPDF(input);
+                    break;
+                case 'image':
+                    text = await this.extractTextFromImage(input);
+                    break;
+                default:
+                    throw new Error('Unsupported input type');
             }
 
-            return extractedContent;
-        } catch (error) {
-            console.error('Error processing PDF:', error);
-            throw error;
-        }
-    }
+            console.log('Detecting language for text:', text.substring(0, 100) + '...');
 
-    // Process image input
-    async processImage(filePath) {
-        try {
-            const fileBuffer = await fs.readFile(filePath);
-            const result = await this.visionClient.analyzeImageInStream(fileBuffer, {
-                visualFeatures: ['Tags', 'Description', 'Captions'],
-                language: 'en'
+            // Detect language using Azure Translator
+            const response = await axios({
+                baseURL: this.translatorEndpoint,
+                url: '/detect',
+                method: 'POST',
+                headers: {
+                    'Ocp-Apim-Subscription-Key': this.translatorKey,
+                    'Ocp-Apim-Subscription-Region': this.translatorRegion,
+                    'Content-type': 'application/json',
+                },
+                params: {
+                    'api-version': '3.0',
+                },
+                data: [{ text: text }],
             });
 
-            return {
-                tags: result.tags,
-                description: result.description,
-                captions: result.captions
-            };
-        } catch (error) {
-            console.error('Error processing image:', error);
-            throw error;
-        }
-    }
+            const detectedLanguage = response.data[0].language;
+            console.log('Detected language:', detectedLanguage);
 
-    // Process text input
-    async processText(text) {
-        try {
-            // Detect language
-            const [detection] = await this.translatorClient.detectLanguage([text]);
-            
             return {
                 text,
-                detectedLanguage: detection.language,
-                confidence: detection.confidence
+                detectedLanguage,
+                type
             };
         } catch (error) {
-            console.error('Error processing text:', error);
+            console.error('Error processing input:', error);
             throw error;
         }
     }
 
-    // Main input processing method
-    async processInput(input, type) {
-        switch (type.toLowerCase()) {
-            case 'pdf':
-                return await this.processPDF(input);
-            case 'image':
-                return await this.processImage(input);
-            case 'text':
-                return await this.processText(input);
-            default:
-                throw new Error(`Unsupported input type: ${type}`);
-        }
-    }
-
-    // Process content with Azure OpenAI
-    async processWithOpenAI(content) {
+    async translateContent(content, sourceLanguage, targetLanguage) {
         try {
-            const prompt = this.buildPrompt(content);
-            const response = await this.openAIClient.getChatCompletions(
-                process.env.AZURE_OPENAI_DEPLOYMENT_NAME,
-                {
-                    messages: [
-                        { role: "system", content: "You are a helpful assistant that processes and localizes content." },
-                        { role: "user", content: prompt }
-                    ],
-                    temperature: 0.7,
-                    max_tokens: 800
-                }
-            );
-
-            return {
-                processedText: response.choices[0].message.content,
-                language: content.detectedLanguage || 'en'
-            };
-        } catch (error) {
-            console.error('Error processing with OpenAI:', error);
-            throw error;
-        }
-    }
-
-    // Translate content
-    async translateContent(content, sourceLang, targetLang) {
-        try {
-            const textToTranslate = Array.isArray(content.text) ? content.text.join('\n') : content.text;
-            const [translation] = await this.translatorClient.translateText([textToTranslate], {
-                from: sourceLang,
-                to: [targetLang]
+            console.log('Translation request:', {
+                sourceLanguage,
+                targetLanguage,
+                contentLength: content.length
             });
 
+            // First translate the content
+            const response = await axios({
+                baseURL: this.translatorEndpoint,
+                url: '/translate',
+                method: 'POST',
+                headers: {
+                    'Ocp-Apim-Subscription-Key': this.translatorKey,
+                    'Ocp-Apim-Subscription-Region': this.translatorRegion,
+                    'Content-type': 'application/json',
+                },
+                params: {
+                    'api-version': '3.0',
+                    'from': sourceLanguage,
+                    'to': targetLanguage,
+                },
+                data: [{ text: content }],
+            });
+
+            const translatedText = response.data[0].translations[0].text;
+            console.log('Translation completed:', {
+                sourceLanguage,
+                targetLanguage,
+                translatedTextLength: translatedText.length
+            });
+
+            // Then culturally localize it
+            const culturallyLocalized = await this.localizeWithOpenAI(translatedText, targetLanguage);
+            console.log('Cultural localization completed');
+
             return {
-                ...content,
-                text: translation.translations[0].text,
-                language: targetLang
+                content: culturallyLocalized,
+                language: targetLanguage
             };
         } catch (error) {
             console.error('Error translating content:', error);
@@ -182,28 +161,123 @@ class LocalizationService {
         }
     }
 
-    // Build prompt for OpenAI
-    buildPrompt(content) {
-        let prompt = 'Please process and localize the following content:\n\n';
-        
-        if (Array.isArray(content.text)) {
-            prompt += content.text.join('\n');
-        } else if (content.text) {
-            prompt += content.text;
+    async localizeWithOpenAI(inputText, targetLanguage) {
+        const targetLanguageName = this.languageNameMap[targetLanguage] || targetLanguage;
+        console.log('Cultural localization for:', targetLanguageName);
+
+        const systemPrompt = `
+You are an expert in educational content localization and adaptation. Your job is to modify academic text so that it resonates culturally, emotionally, and contextually with students in the target region.
+
+You must:
+1. Replace cultural references with local equivalents:
+   - Trees, plants, and crops with local varieties
+   - Animals with local species
+   - Food items with local dishes
+   - Places and locations with local examples
+   - Names and people with local names
+
+2. Maintain proper formatting:
+   - Keep all headings and subheadings
+   - Preserve numbered and bulleted lists
+   - Maintain paragraph structure
+   - Keep technical terms accurate
+   - Ensure proper line breaks between sections
+
+3. Make the content culturally relevant:
+   - Use local measurement systems if applicable
+   - Reference local weather patterns
+   - Include local examples and scenarios
+   - Use culturally appropriate analogies
+
+4. Ensure readability:
+   - Break long paragraphs into smaller ones
+   - Use clear transitions between sections
+   - Maintain consistent formatting
+   - Keep technical terms with their translations in parentheses when first used
+
+📌 Example:
+Original (English): "Photosynthesis is the process by which plants like maple and oak trees use sunlight, water, and carbon dioxide to make their own food. Farmers in Canada grow crops that rely on sunlight."
+
+Localized for Philippines:
+"Ang potosintesis (photosynthesis) ay ang proseso kung saan ang mga halaman tulad ng puno ng mangga at narra ay gumagamit ng sikat ng araw, tubig, at carbon dioxide para makagawa ng sarili nilang pagkain. Ang mga magsasaka sa Pilipinas ay nagtatanim ng palay at gulay na umaasa sa sikat ng araw para lumago."
+
+Now, localize the following text for students in ${targetLanguageName}. Maintain all formatting, headings, and technical accuracy while making it culturally relevant:
+`;
+
+        try {
+            const response = await axios.post(
+                `${this.openAIEndpoint}/openai/deployments/${this.openAIDeployment}/chat/completions?api-version=${this.openAIVersion}`,
+                {
+                    messages: [
+                        { role: "system", content: systemPrompt },
+                        { role: "user", content: inputText }
+                    ],
+                    temperature: 0.7,
+                    max_tokens: 2048
+                },
+                {
+                    headers: {
+                        'api-key': this.openAIKey,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            return response.data.choices[0].message.content;
+        } catch (error) {
+            console.error('Error in cultural localization:', error);
+            throw error;
         }
+    }
 
-        if (content.tags) {
-            prompt += '\n\nTags: ' + content.tags.map(tag => tag.name).join(', ');
+    async extractTextFromPDF(pdfBuffer) {
+        try {
+            if (!this.formRecognizerClient) {
+                throw new Error("Azure Form Recognizer is not configured");
+            }
+
+            console.log('Starting PDF analysis with Form Recognizer...');
+            
+            // Start the analysis
+            const poller = await this.formRecognizerClient.beginAnalyzeDocument(
+                "prebuilt-document", // Use the prebuilt document model
+                pdfBuffer
+            );
+
+            // Wait for the analysis to complete
+            const result = await poller.pollUntilDone();
+            console.log('PDF analysis completed');
+
+            // Extract text from all pages, including text from images
+            let fullText = '';
+            for (const page of result.pages) {
+                // Extract text from the page
+                for (const line of page.lines) {
+                    fullText += line.content + '\n';
+                }
+
+                // Extract text from images if any
+                if (page.images) {
+                    for (const image of page.images) {
+                        if (image.text) {
+                            fullText += image.text + '\n';
+                        }
+                    }
+                }
+
+                fullText += '\n'; // Add extra newline between pages
+            }
+
+            return fullText;
+        } catch (error) {
+            console.error('Error processing PDF:', error);
+            throw new Error(`Failed to process PDF: ${error.message}`);
         }
+    }
 
-        if (content.description) {
-            prompt += '\n\nDescription: ' + content.description.captions[0].text;
-        }
-
-        prompt += '\n\nPlease provide a localized version that maintains the original meaning while being culturally appropriate.';
-
-        return prompt;
+    async extractTextFromImage(imageBuffer) {
+        throw new Error("Image OCR not yet implemented.");
     }
 }
 
-module.exports = new LocalizationService(); 
+export default new LocalizationService();

@@ -75,11 +75,14 @@ const SEA_LANGUAGES = [
 
 const UserProfileForm = ({ onProfileSubmit }) => {
   const { t } = useTranslation();
-  const [profileData, setProfileData] = useState({
-    name: "",
-    age: "",
-    interests: "",
-    preferredLanguage: "en"
+  const [profileData, setProfileData] = useState(() => {
+    const savedProfile = sessionStorage.getItem('userProfile');
+    return savedProfile ? JSON.parse(savedProfile) : {
+      name: "",
+      age: "",
+      interests: "",
+      preferredLanguage: sessionStorage.getItem('preferredLanguage') || "en"
+    };
   });
   const [searchTerm, setSearchTerm] = useState("");
 

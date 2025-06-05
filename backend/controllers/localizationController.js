@@ -1,6 +1,10 @@
-const localizationService = require('../services/localizationService');
-const multer = require('multer');
-const path = require('path');
+import localizationService from '../services/localizationService.js';
+import multer from 'multer';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -41,35 +45,20 @@ class LocalizationController {
             const isSourceSupported = localizationService.isLanguageSupported(sourceLang);
             const isPreferredSupported = localizationService.isLanguageSupported(preferredLanguage);
 
-            // Process routing based on language support
-            if (isSourceSupported) {
-                // Case A: source_lang supported by OpenAI
-                result.processedContent = await this.processWithOpenAI(result);
-            } else if (isPreferredSupported) {
-                // Case B: source_lang NOT supported, preferred_lang IS supported
-                const translatedText = await this.translateContent(result, sourceLang, preferredLanguage);
-                result.processedContent = await this.processWithOpenAI(translatedText);
-            } else {
-                // Case C: Neither source_lang nor preferred_lang supported
-                const translatedToEnglish = await this.translateContent(result, sourceLang, 'en');
-                result.processedContent = await this.processWithOpenAI(translatedToEnglish);
-            }
-
-            // Post-process translation if needed
-            if (result.processedContent.language !== preferredLanguage) {
-                result.finalContent = await this.translateContent(
-                    result.processedContent,
-                    result.processedContent.language,
-                    preferredLanguage
-                );
-            } else {
-                result.finalContent = result.processedContent;
+            if (!isSourceSupported || !isPreferredSupported) {
+                return res.status(400).json({ 
+                    error: 'Unsupported language combination',
+                    details: {
+                        sourceSupported: isSourceSupported,
+                        preferredSupported: isPreferredSupported
+                    }
+                });
             }
 
             res.json(result);
         } catch (error) {
-            console.error('Error in processContent:', error);
-            res.status(500).json({ error: error.message });
+            console.error('Error processing content:', error);
+            res.status(500).json({ error: 'Failed to process content' });
         }
     }
 
@@ -86,4 +75,4 @@ class LocalizationController {
     }
 }
 
-module.exports = new LocalizationController(); 
+export default new LocalizationController(); 
