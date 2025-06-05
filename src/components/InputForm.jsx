@@ -6,10 +6,9 @@ import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf';
 // Initialize PDF.js worker using CDN
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
 
-function InputForm({ setLocalizedContent, setRecommendations }) {
+function InputForm({ setLocalizedContent, setRecommendations, preferredLanguage }) {
   const { t } = useTranslation();
   const [courseContent, setCourseContent] = useState('');
-  const [language, setLanguage] = useState('');
   const [loading, setLoading] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -17,7 +16,7 @@ function InputForm({ setLocalizedContent, setRecommendations }) {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    const storedProfile = localStorage.getItem('userProfile');
+    const storedProfile = sessionStorage.getItem('userProfile');
     if (storedProfile) {
       setUserProfile(JSON.parse(storedProfile));
     }
@@ -98,10 +97,11 @@ function InputForm({ setLocalizedContent, setRecommendations }) {
     setMessages(prev => [...prev, { type: 'user', content: courseContent }]);
 
     try {
+      // Attach preferredLanguage to the userProfile for backend use
+      const profileToSend = { ...userProfile, preferredLanguage };
       const response = await axios.post('http://localhost:3000/translate', {
         content: courseContent,
-        targetLanguage: language,
-        profile: userProfile,
+        profile: profileToSend,
       });
 
       setLocalizedContent(response.data.localizedContent);
@@ -162,19 +162,6 @@ function InputForm({ setLocalizedContent, setRecommendations }) {
       <div className="border-t border-gray-200 p-4 bg-white">
         <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
           <div className="flex items-center space-x-2">
-            <select
-              className="flex-1 p-2 border border-gray-300 rounded-md"
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              required
-            >
-              <option value="">{t("select_target_language")}</option>
-              <option value="id">Bahasa Indonesia</option>
-              <option value="ms">Malay</option>
-              <option value="th">Thai</option>
-              <option value="vi">Vietnamese</option>
-              <option value="tl">Filipino (Tagalog)</option>
-            </select>
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}

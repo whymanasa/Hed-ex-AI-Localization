@@ -32,17 +32,17 @@ function App() {
   const [localizedContent, setLocalizedContent] = useState('');
   const [recommendations, setRecommendations] = useState('');
   const [userProfile, setUserProfile] = useState(() => {
-    const saved = localStorage.getItem('userProfile');
+    const saved = sessionStorage.getItem('userProfile');
     return saved ? JSON.parse(saved) : null;
   });
   
   const [preferredLanguage, setPreferredLanguage] = useState(() => {
-    return localStorage.getItem('preferredLanguage') || '';
+    return sessionStorage.getItem('preferredLanguage') || '';
   });
 
   const handleLanguageSelect = (langCode) => {
     setPreferredLanguage(langCode);
-    localStorage.setItem('preferredLanguage', langCode);
+    sessionStorage.setItem('preferredLanguage', langCode);
   };
 
   const handleProfileSubmit = (profileData) => {

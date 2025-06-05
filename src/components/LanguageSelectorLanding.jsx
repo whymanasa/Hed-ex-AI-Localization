@@ -16,24 +16,24 @@ const LanguageSelectorLanding = ({ onLanguageSelect }) => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [selectedLanguage, setSelectedLanguage] = useState(() => {
-    return localStorage.getItem("preferredLanguage") || "en";
+    return sessionStorage.getItem("preferredLanguage") || "en";
   });
   const [tempLanguage, setTempLanguage] = useState(() => {
-    return localStorage.getItem("preferredLanguage") || "en";
+    return sessionStorage.getItem("preferredLanguage") || "en";
   });
 
   useEffect(() => {
     // Set English as default on initial load if no language is stored
-    if (!localStorage.getItem("preferredLanguage")) {
-      localStorage.setItem("preferredLanguage", "en");
+    if (!sessionStorage.getItem("preferredLanguage")) {
+      sessionStorage.setItem("preferredLanguage", "en");
       i18n.changeLanguage("en");
       onLanguageSelect("en");
     }
   }, []);
 
   const handleSubmit = () => {
-    // Store the selected language in localStorage
-    localStorage.setItem("preferredLanguage", tempLanguage);
+    // Store the selected language in sessionStorage
+    sessionStorage.setItem("preferredLanguage", tempLanguage);
     setSelectedLanguage(tempLanguage);
     // Navigate to profile page
     navigate("/profile");
