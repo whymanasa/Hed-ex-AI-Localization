@@ -156,15 +156,15 @@ const UserProfileForm = ({ onProfileSubmit }) => {
         />
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700">
-            Select your preferred language for content localization
+            {t("select_language")}
           </label>
           <p className="text-sm text-gray-500 mb-2">
-            This language will be used to localize all your course content. Choose the language you're most comfortable with.
+            {t("language_description")}
           </p>
           <div className="relative">
             <input
               type="text"
-              placeholder="Search languages..."
+              placeholder={t("search_languages")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full px-4 py-2 border rounded mb-2"
@@ -176,7 +176,7 @@ const UserProfileForm = ({ onProfileSubmit }) => {
               className="w-full px-4 py-2 border rounded"
               required
             >
-              <option value="">Select your preferred language</option>
+              <option value="">{t("select_preferred_language")}</option>
               {Object.entries(groupedLanguages).map(([country, languages]) => (
                 <optgroup key={country} label={country}>
                   {languages.map((lang) => (

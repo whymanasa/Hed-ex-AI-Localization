@@ -129,7 +129,7 @@ function InputForm({ setLocalizedContent, preferredLanguage }) {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-200px)] bg-gray-50">
+    <div className="flex flex-col flex-1 border border-gray-300 rounded-lg overflow-hidden bg-white">
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((message, index) => (
           <div
@@ -203,6 +203,9 @@ function InputForm({ setLocalizedContent, preferredLanguage }) {
 }
 
 export default InputForm;
+
+
+
 
 
 

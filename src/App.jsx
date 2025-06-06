@@ -11,8 +11,7 @@ function Home({ localizedContent, setLocalizedContent, userProfile, preferredLan
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6 text-blue-600">Hex Ed: SEA Course Localizer</h1>
+    <div className="flex p-6 gap-6 h-[calc(100vh-80px)]">
       <InputForm 
         setLocalizedContent={setLocalizedContent} 
         userProfile={userProfile}
@@ -54,7 +53,7 @@ function App() {
   return (
     <Router>
       <nav className="bg-blue-700 text-white px-6 py-4 flex justify-between">
-        <span className="font-bold text-xl">Hex Ed</span>
+        <span className="font-bold text-xl">Hex Ed Localiser</span>
         <div className="space-x-4">
           {preferredLanguage && <Link to="/home" className="hover:text-blue-200">Home</Link>}
           <Link to="/language" className="hover:text-blue-200">Language</Link>
@@ -90,6 +89,12 @@ function App() {
 }
 
 export default App;
+
+
+
+
+
+
 
 
 

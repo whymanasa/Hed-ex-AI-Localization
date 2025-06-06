@@ -160,8 +160,8 @@ function ContentQuiz({ content, language, onClose }) {
         return (
             <div className="p-6">
                 <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-                    <p className="mt-4 text-gray-600">Generating quiz...</p>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-800 mx-auto"></div>
+                    <p className="mt-4 text-gray-600">{t('processing')}</p>
                 </div>
             </div>
         );
@@ -175,15 +175,15 @@ function ContentQuiz({ content, language, onClose }) {
                     <div className="space-x-4">
                         <button
                             onClick={resetQuiz}
-                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                            className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900"
                         >
-                            Try Again
+                            {t('try_again')}
                         </button>
                         <button
                             onClick={onClose}
                             className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
                         >
-                            Close
+                            {t('close_quiz')}
                         </button>
                     </div>
                 </div>
@@ -195,12 +195,12 @@ function ContentQuiz({ content, language, onClose }) {
         return (
             <div className="p-6">
                 <div className="text-center">
-                    <p className="text-gray-600">No questions available.</p>
+                    <p className="text-gray-600">{t('no_quiz_attempts')}</p>
                     <button
                         onClick={onClose}
                         className="mt-4 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
                     >
-                        Close
+                        {t('close_quiz')}
                     </button>
                 </div>
             </div>
@@ -210,21 +210,21 @@ function ContentQuiz({ content, language, onClose }) {
     if (score !== null) {
         return (
             <div className="p-6">
-                <h2 className="text-2xl font-bold mb-4">Quiz Results</h2>
-                <p className="text-xl mb-2">Your Score: {score.toFixed(1)}%</p>
+                <h2 className="text-2xl font-bold mb-4">{t('quiz_results')}</h2>
+                <p className="text-xl mb-2">{t('your_score')}: {score.toFixed(1)}%</p>
                 <p className="text-lg mb-4">{feedback}</p>
                 <div className="flex justify-between">
                     <button
                         onClick={resetQuiz}
-                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                        className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900"
                     >
-                        Try Again
+                        {t('try_again')}
                     </button>
                     <button
                         onClick={onClose}
                         className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
                     >
-                        Close
+                        {t('close_quiz')}
                     </button>
                 </div>
             </div>
@@ -235,7 +235,7 @@ function ContentQuiz({ content, language, onClose }) {
     return (
         <div className="p-6">
             <div className="mb-4">
-                <h2 className="text-xl font-bold mb-2">Question {currentQuestion + 1} of {questions.length}</h2>
+                <h2 className="text-xl font-bold mb-2">{t('question')} {currentQuestion + 1} {t('or')} {questions.length}</h2>
                 <p className="text-lg">{currentQ.question}</p>
             </div>
             <div className="space-y-3">
@@ -245,7 +245,7 @@ function ContentQuiz({ content, language, onClose }) {
                         onClick={() => handleAnswer(option)}
                         className={`w-full text-left p-3 rounded-lg border ${
                             userAnswers[currentQuestion] === option
-                                ? 'bg-blue-100 border-blue-500'
+                                ? 'bg-gray-100 border-gray-800'
                                 : 'bg-white border-gray-300 hover:bg-gray-50'
                         }`}
                     >
@@ -260,24 +260,24 @@ function ContentQuiz({ content, language, onClose }) {
                     className={`px-4 py-2 rounded ${
                         currentQuestion === 0
                             ? 'bg-gray-300 cursor-not-allowed'
-                            : 'bg-blue-500 text-white hover:bg-blue-600'
+                            : 'bg-gray-800 text-white hover:bg-gray-900'
                     }`}
                 >
-                    Previous
+                    {t('previous_question')}
                 </button>
                 {currentQuestion === questions.length - 1 ? (
                     <button
                         onClick={handleSubmit}
-                        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                        className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900"
                     >
-                        Submit
+                        {t('submit_quiz')}
                     </button>
                 ) : (
                     <button
                         onClick={handleNext}
-                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                        className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900"
                     >
-                        Next
+                        {t('next_question')}
                     </button>
                 )}
             </div>

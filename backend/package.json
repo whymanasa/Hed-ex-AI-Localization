@@ -1,6 +1,6 @@
 {
   "name": "backend",
-  "module": "index.ts",
+  "module": "server.js",
   "type": "module",
   "private": true,
   "devDependencies": {
@@ -16,6 +16,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "html2canvas": "^1.4.1",
     "multer": "^1.4.5-lts.1"
   }
 }

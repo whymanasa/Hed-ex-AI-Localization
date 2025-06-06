@@ -116,11 +116,19 @@ app.post('/translate', upload.single('file'), async (req, res) => {
             });
         }
 
-        // If a file was uploaded, process it
+        // If a file was uploaded, process it using pdfService
         if (req.file) {
             console.log('Processing uploaded file...');
-            content = await localizationService.extractTextFromPDF(req.file.buffer);
-            console.log('File processed successfully');
+            try {
+                content = await pdfService.extractTextFromPDF(req.file.buffer);
+                console.log('File processed successfully');
+            } catch (pdfError) {
+                console.error('Error processing PDF:', pdfError);
+                return res.status(500).json({
+                    error: 'PDF processing failed',
+                    details: pdfError.message
+                });
+            }
         }
 
         // First detect the language of the content
