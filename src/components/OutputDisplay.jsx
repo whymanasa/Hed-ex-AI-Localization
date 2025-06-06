@@ -4,9 +4,11 @@ import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { useTranslation } from 'react-i18next';
 
 function OutputDisplay({ localizedContent, language }) {
     const [showQuiz, setShowQuiz] = useState(false);
+    const { t } = useTranslation();
 
     if (!localizedContent) {
         return null;
@@ -60,21 +62,21 @@ function OutputDisplay({ localizedContent, language }) {
         <div className="flex-1 border border-gray-300 rounded-lg overflow-y-auto relative bg-white">
             <div className="p-6">
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-2xl font-bold text-gray-900">Localized Content</h2>
+                    <h2 className="text-2xl font-bold text-gray-900">{t('localized_content')}</h2>
                     <div className="flex space-x-2">
                         <button
                             onClick={handleDownload}
                             className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-900 transition-colors flex items-center space-x-2"
                         >
                             <span>📥</span>
-                            <span>Download PDF</span>
+                            <span>{t('download_pdf')}</span>
                         </button>
                         <button
                             onClick={() => setShowQuiz(!showQuiz)}
                             className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-900 transition-colors shadow-lg flex items-center space-x-2"
                         >
                             <span>{showQuiz ? '✕' : '📝'}</span>
-                            <span>{showQuiz ? 'Close Quiz' : 'Take Quiz'}</span>
+                            <span>{showQuiz ? t('close_quiz') : t('take_quiz')}</span>
                         </button>
                     </div>
                 </div>

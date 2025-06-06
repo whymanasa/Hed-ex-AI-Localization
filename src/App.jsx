@@ -4,6 +4,7 @@ import InputForm from './components/InputForm';
 import OutputDisplay from './components/OutputDisplay';
 import UserProfileForm from './components/UserProfileForm';
 import LanguageSelectorLanding from './components/LanguageSelectorLanding';
+import Navbar from './components/Navbar';
 
 function Home({ localizedContent, setLocalizedContent, userProfile, preferredLanguage }) {
   if (!preferredLanguage) {
@@ -52,14 +53,7 @@ function App() {
 
   return (
     <Router>
-      <nav className="bg-blue-700 text-white px-6 py-4 flex justify-between">
-        <span className="font-bold text-xl">Hex Ed Localiser</span>
-        <div className="space-x-4">
-          {preferredLanguage && <Link to="/home" className="hover:text-blue-200">Home</Link>}
-          <Link to="/language" className="hover:text-blue-200">Language</Link>
-          {preferredLanguage && <Link to="/profile" className="hover:text-blue-200">Profile</Link>}
-        </div>
-      </nav>
+      <Navbar />
 
       <Routes>
         <Route path="/" element={

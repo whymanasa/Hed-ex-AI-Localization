@@ -19,7 +19,7 @@ export default function Navbar() {
 
   return (
     <nav className="bg-blue-700 text-white px-6 py-4 flex justify-between items-center">
-      <h1 className="text-xl font-bold">EduLocalize</h1>
+      <h1 className="text-xl font-bold">{t('app_title')}</h1>
       <div className="flex items-center space-x-4">
         <Link to="/home" className="hover:text-blue-200 transition-colors">{t("home")}</Link>
         <Link to="/profile" className="hover:text-blue-200 transition-colors">{t("profile")}</Link>
