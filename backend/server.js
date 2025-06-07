@@ -14,7 +14,8 @@ import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx';
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = path.resolve();
+
 
 const app = express();
 const PORT = 3000;
@@ -68,7 +69,7 @@ app.use((req, res, next) => {
 
 // Add axios configuration at the top after imports
 const axiosInstance = axios.create({
-    timeout: 10000, // 10 second timeout
+    timeout: 60000, // 60 second timeout
     headers: {
         'api-key': process.env.AZURE_OPENAI_KEY,
         'Content-Type': 'application/json'
@@ -643,7 +644,17 @@ app.post('/download-docx', async (req, res) => {
     }
 });
 
-// Start the server
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+// React static files
+app.use(express.static(path.join(__dirname, '../client/dist')));
+
+// Serve index.html for all other routes
+app.get('/*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
+
+
