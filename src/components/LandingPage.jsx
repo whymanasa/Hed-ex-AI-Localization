@@ -26,10 +26,10 @@ function LandingPage() {
                 {/* Right Text Section */}
                 <div className="md:w-1/2 p-8 flex flex-col justify-center items-start text-center md:text-left bg-[#71C0BB]">
                     <h1 className="text-3xl md:text-4xl font-bold text-[#332D56] mb-4">
-                        {t('landing_title')}
+                        Built for me
                     </h1>
                     <p className="text-lg md:text-xl text-[#4E6688] mb-6">
-                        {t('landing_subtitle')}
+                        Hex localizer Transforms education by localizing content and valuing every student's unique language and culture.
                     </p>
                     <button
                         onClick={handleTryIt}
