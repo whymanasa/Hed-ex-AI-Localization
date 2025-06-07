@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
 
 function ContentQuiz({ content, language, onClose }) {
     const { t } = useTranslation();
@@ -48,19 +49,19 @@ function ContentQuiz({ content, language, onClose }) {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.details || 'Failed to generate quiz');
+                throw new Error(errorData.details || t('quiz.error.generateFailed'));
             }
 
             const data = await response.json();
             if (!data.questions || !Array.isArray(data.questions)) {
-                throw new Error('Invalid quiz data received');
+                throw new Error(t('quiz.error.invalidData'));
             }
             
             setQuestions(data.questions);
             setIsLoading(false);
         } catch (error) {
             console.error('Error generating quiz:', error);
-            setError(error.message || 'Error generating quiz. Please try again.');
+            setError(error.message || t('quiz.error.tryAgain'));
             setIsLoading(false);
         }
     };
@@ -90,10 +91,33 @@ function ContentQuiz({ content, language, onClose }) {
         return messages[Math.floor(Math.random() * messages.length)];
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         const finalScore = calculateScore();
         setScore(finalScore);
-        setFeedback(getEncouragement(finalScore));
+        
+        try {
+            const response = await fetch('http://localhost:3000/generate-feedback', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    score: finalScore,
+                    language: language // Use the passed language prop
+                }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.details || 'Failed to generate feedback');
+            }
+
+            const data = await response.json();
+            setFeedback(data.feedback);
+        } catch (feedbackError) {
+            console.error('Error fetching personalized feedback:', feedbackError);
+            setFeedback('Could not generate personalized feedback.'); // Fallback feedback
+        }
     };
 
     const handleNext = () => {
@@ -122,38 +146,56 @@ function ContentQuiz({ content, language, onClose }) {
         generateQuiz();
     }, []);
 
-    const handleDownload = () => {
-        // Create a new PDF document
-        const doc = new jsPDF();
-        
-        // Set font size and line height
-        doc.setFontSize(12);
-        const lineHeight = 7;
-        
-        // Split content into paragraphs and add to PDF
-        const paragraphs = content.split('\n');
-        let y = 20; // Starting y position
-        
-        paragraphs.forEach((paragraph) => {
-            // Split long paragraphs into lines that fit the page width
-            const lines = doc.splitTextToSize(paragraph, 180);
+    const handleDownload = async () => {
+        try {
+            // Create a temporary div to render the content
+            const contentDiv = document.createElement('div');
+            contentDiv.style.width = '210mm'; // A4 width
+            contentDiv.style.padding = '20mm';
+            contentDiv.style.fontFamily = 'Arial, sans-serif';
+            contentDiv.style.fontSize = '12pt';
+            contentDiv.style.lineHeight = '1.5';
+            contentDiv.style.whiteSpace = 'pre-wrap';
+            contentDiv.style.position = 'absolute';
+            contentDiv.style.left = '-9999px';
+            contentDiv.style.top = '-9999px';
             
-            // Add each line to the PDF
-            lines.forEach((line) => {
-                if (y > 280) { // Check if we need a new page
-                    doc.addPage();
-                    y = 20;
-                }
-                doc.text(line, 20, y);
-                y += lineHeight;
+            // Add the content to the temporary div
+            contentDiv.innerHTML = content.split('\n').map(p => 
+                `<p style="margin-bottom: 1em;">${p}</p>`
+            ).join('');
+            
+            // Add to document
+            document.body.appendChild(contentDiv);
+            
+            // Convert to canvas
+            const canvas = await html2canvas(contentDiv, {
+                scale: 2,
+                useCORS: true,
+                logging: false
             });
             
-            // Add space between paragraphs
-            y += lineHeight;
-        });
-        
-        // Save the PDF
-        doc.save('localized-content.pdf');
+            // Remove the temporary div
+            document.body.removeChild(contentDiv);
+            
+            // Create PDF
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
+            
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+            
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            pdf.save('quiz-content.pdf');
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            alert('Error generating PDF. Please try again.');
+        }
     };
 
     if (isLoading) {
@@ -219,6 +261,12 @@ function ContentQuiz({ content, language, onClose }) {
                         className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900"
                     >
                         {t('try_again')}
+                    </button>
+                    <button
+                        onClick={handleDownload}
+                        className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900"
+                    >
+                        {t('download_pdf')}
                     </button>
                     <button
                         onClick={onClose}

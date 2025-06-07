@@ -19,6 +19,7 @@
     "install": "^0.13.0",
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
+    "node-cache": "^5.1.2",
     "openai": "^4.96.2",
     "pdfjs-dist": "3.11.174",
     "react": "^19.0.0",

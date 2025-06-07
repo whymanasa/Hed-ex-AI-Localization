@@ -30,8 +30,6 @@ function InputForm({ setLocalizedContent, preferredLanguage }) {
     const file = event.target.files[0];
     if (!file) return;
 
-    setMessages(prev => [...prev, { type: 'user', content: `Uploading file: ${file.name}...` }]);
-
     try {
       // For text files, read them directly
       if (file.type === 'text/plain' || file.type === 'text/markdown') {
@@ -47,8 +45,6 @@ function InputForm({ setLocalizedContent, preferredLanguage }) {
         // The actual processing will be done on the server
         setCourseContent(`File: ${file.name}`);
       }
-      
-      setMessages(prev => [...prev, { type: 'user', content: `Successfully loaded: ${file.name}` }]);
     } catch (error) {
       console.error('Error reading file:', error);
       setMessages(prev => [...prev, { 
@@ -72,7 +68,9 @@ function InputForm({ setLocalizedContent, preferredLanguage }) {
     }
 
     setLoading(true);
-    setMessages(prev => [...prev, { type: 'user', content: courseContent }]);
+    if (courseContent.trim() && !fileInputRef.current?.files[0]) {
+        setMessages(prev => [...prev, { type: 'user', content: courseContent }]);
+    }
 
     try {
       console.log('User Profile:', userProfile);

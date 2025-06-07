@@ -5,13 +5,19 @@ import { useNavigate } from "react-router-dom";
 const languages = [
   { code: "en", name: "English" },
   { code: "fil", name: "Filipino" },
-  { code: "id", name: "Indonesian" },
-  { code: "ms", name: "Malay" },
-  { code: "th", name: "Thai" },
-  { code: "vi", name: "Vietnamese" },
-  { code: "km", name: "Khmer" },
-  { code: "my", name: "Burmese" }
-  // Add more SEA languages here
+  { code: "id", name: "Bahasa Indonesia" },
+  { code: "ms", name: "Bahasa Melayu" },
+  { code: "th", name: "ไทย" },
+  { code: "vi", name: "Tiếng Việt" },
+  { code: "km", name: "ខ្មែរ" },
+  { code: "my", name: "မြန်မာ" },
+  { code: "zh", name: "中文" },
+  { code: "hi", name: "हिंदी" },
+  { code: "ta", name: "தமிழ்" },
+  { code: "jv", name: "Basa Jawa" },
+  { code: "bn", name: "বাংলা" },
+  { code: "pa", name: "ਪੰਜਾਬੀ" },
+  { code: "te", name: "తెలుగు" }
 ];
 
 const LanguageSelectorLanding = ({ onLanguageSelect }) => {
@@ -30,12 +36,11 @@ const LanguageSelectorLanding = ({ onLanguageSelect }) => {
     }
   }, []);
 
-  const handleLanguageChange = (e) => {
-    const newLanguage = e.target.value;
-    sessionStorage.setItem("preferredLanguage", newLanguage);
-    setSelectedLanguage(newLanguage);
-    i18n.changeLanguage(newLanguage);
-    onLanguageSelect(newLanguage);
+  const handleLanguageSelect = (langCode) => {
+    sessionStorage.setItem("preferredLanguage", langCode);
+    setSelectedLanguage(langCode);
+    i18n.changeLanguage(langCode);
+    onLanguageSelect(langCode);
   };
 
   const handleSubmit = () => {
@@ -43,28 +48,39 @@ const LanguageSelectorLanding = ({ onLanguageSelect }) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-blue-100 to-indigo-200">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800 text-center">
-        🌏 {t("choose_language")}
-      </h1>
-      <div className="flex flex-col items-center gap-4">
-        <select
-          value={selectedLanguage}
-          onChange={handleLanguageChange}
-          className="py-2 px-6 rounded-xl text-gray-800 font-semibold shadow-md bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-        >
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            🌏 {t("choose_language")}
+          </h1>
+          
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
           {languages.map((lang) => (
-            <option key={lang.code} value={lang.code}>
-              {lang.name}
-            </option>
+            <button
+              key={lang.code}
+              onClick={() => handleLanguageSelect(lang.code)}
+              className={`p-4 rounded-lg text-center transition-all duration-200 transform hover:scale-105 ${
+                selectedLanguage === lang.code
+                  ? "bg-gray-900 text-white shadow-lg"
+                  : "bg-white text-gray-800 hover:bg-gray-50 shadow-md"
+              }`}
+            >
+              <div className="font-medium text-lg">{lang.name}</div>
+            </button>
           ))}
-        </select>
-        <button
-          onClick={handleSubmit}
-          className="py-2 px-6 rounded-xl text-white font-semibold shadow-md bg-indigo-600 hover:bg-indigo-700 transition duration-200"
-        >
-          {t("submit")}
-        </button>
+        </div>
+
+        <div className="text-center">
+          <button
+            onClick={handleSubmit}
+            className="inline-flex items-center px-8 py-3 border border-transparent text-lg font-medium rounded-lg text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200 shadow-lg"
+          >
+            {t("save_and_continue")}
+          </button>
+        </div>
       </div>
     </div>
   );

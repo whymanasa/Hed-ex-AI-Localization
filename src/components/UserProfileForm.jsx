@@ -4,73 +4,73 @@ import { useTranslation } from "react-i18next";
 
 const SEA_LANGUAGES = [
   // A
-  { code: "ace", name: "Acehnese", country: "Indonesia" },
+  { code: "ace", name: "Bahsa Acèh", country: "Indonesia" },
   // B
-  { code: "ban", name: "Balinese", country: "Indonesia" },
-  { code: "bn", name: "Bengali", country: "Regional" },
+  { code: "ban", name: "Basa Bali", country: "Indonesia" },
+  { code: "bn", name: "বাংলা", country: "Regional" },
   { code: "bik", name: "Bikol", country: "Philippines" },
-  { code: "bug", name: "Buginese", country: "Indonesia" },
-  { code: "ms-bn", name: "Brunei Malay", country: "Brunei" },
+  { code: "bug", name: "ᨅᨔ ᨕᨘᨁᨗ", country: "Indonesia" },
+  { code: "ms-bn", name: "بهاس ملايو", country: "Brunei" },
   // C
-  { code: "ceb", name: "Cebuano", country: "Philippines" },
-  { code: "zh", name: "Chinese (Mandarin)", country: "Major" },
-  { code: "zh-hk", name: "Chinese (Cantonese)", country: "Major" },
-  { code: "zh-tw", name: "Chinese (Traditional)", country: "Major" },
-  { code: "zh-my", name: "Malaysian Chinese", country: "Malaysia" },
-  { code: "zh-sg", name: "Singaporean Chinese", country: "Singapore" },
-  { code: "zh-vn", name: "Vietnamese Chinese", country: "Vietnam" },
-  { code: "zh-kh", name: "Cambodian Chinese", country: "Cambodia" },
+  { code: "ceb", name: "Bisaya", country: "Philippines" },
+  { code: "zh", name: "中文", country: "Major" },
+  { code: "zh-hk", name: "廣東話", country: "Major" },
+  { code: "zh-tw", name: "繁體中文", country: "Major" },
+  { code: "zh-my", name: "马来西亚华语", country: "Malaysia" },
+  { code: "zh-sg", name: "新加坡华语", country: "Singapore" },
+  { code: "zh-vn", name: "越南华语", country: "Vietnam" },
+  { code: "zh-kh", name: "柬埔寨华语", country: "Cambodia" },
   // E
   { code: "en", name: "English", country: "Major" },
   // F
-  { code: "fil", name: "Filipino (Tagalog)", country: "Philippines" },
+  { code: "fil", name: "Filipino", country: "Philippines" },
   // G
-  { code: "gu", name: "Gujarati", country: "Regional" },
+  { code: "gu", name: "ગુજરાતી", country: "Regional" },
   // H
   { code: "hil", name: "Hiligaynon", country: "Philippines" },
-  { code: "hi", name: "Hindi", country: "Regional" },
+  { code: "hi", name: "हिंदी", country: "Regional" },
   { code: "hnj", name: "Hmong", country: "Laos" },
   // I
-  { code: "id", name: "Indonesian (Bahasa Indonesia)", country: "Indonesia" },
-  { code: "ilo", name: "Ilocano", country: "Philippines" },
+  { code: "id", name: "Bahasa Indonesia", country: "Indonesia" },
+  { code: "ilo", name: "Ilokano", country: "Philippines" },
   // J
-  { code: "jv", name: "Javanese", country: "Indonesia" },
-  { code: "kac", name: "Jingpho", country: "Myanmar" },
+  { code: "jv", name: "Basa Jawa", country: "Indonesia" },
+  { code: "kac", name: "Jinghpaw", country: "Myanmar" },
   // K
-  { code: "kn", name: "Kannada", country: "Regional" },
+  { code: "kn", name: "ಕನ್ನಡ", country: "Regional" },
   { code: "pam", name: "Kapampangan", country: "Philippines" },
-  { code: "km", name: "Khmer", country: "Cambodia" },
+  { code: "km", name: "ខ្មែរ", country: "Cambodia" },
   // L
-  { code: "lo", name: "Lao", country: "Laos" },
+  { code: "lo", name: "ພາສາລາວ", country: "Laos" },
   { code: "lwl", name: "Eastern Lawa", country: "Thailand" },
   // M
-  { code: "ms", name: "Malay (Bahasa Melayu)", country: "Malaysia" },
-  { code: "ml", name: "Malayalam", country: "Regional" },
-  { code: "mr", name: "Marathi", country: "Regional" },
-  { code: "min", name: "Minangkabau", country: "Indonesia" },
-  { code: "mnw", name: "Mon", country: "Myanmar" },
-  { code: "my", name: "Burmese", country: "Myanmar" },
+  { code: "ms", name: "Bahasa Melayu", country: "Malaysia" },
+  { code: "ml", name: "മലയാളം", country: "Regional" },
+  { code: "mr", name: "मराठी", country: "Regional" },
+  { code: "min", name: "Baso Minangkabau", country: "Indonesia" },
+  { code: "mnw", name: "ဘာသာ မန်", country: "Myanmar" },
+  { code: "my", name: "မြန်မာ", country: "Myanmar" },
   // N
-  { code: "nod", name: "Northern Thai", country: "Thailand" },
+  { code: "nod", name: "ᨣᩤᩴᨾᩮᩬᩥᨦ", country: "Thailand" },
   // P
   { code: "pag", name: "Pangasinan", country: "Philippines" },
-  { code: "pa", name: "Punjabi", country: "Regional" },
+  { code: "pa", name: "ਪੰਜਾਬੀ", country: "Regional" },
   // S
-  { code: "su", name: "Sundanese", country: "Indonesia" },
-  { code: "shn", name: "Shan", country: "Myanmar" },
+  { code: "su", name: "Basa Sunda", country: "Indonesia" },
+  { code: "shn", name: "လိၵ်ႈတႆး", country: "Myanmar" },
   // T
-  { code: "ta", name: "Tamil", country: "Malaysia" },
-  { code: "ta-sg", name: "Singaporean Tamil", country: "Singapore" },
-  { code: "te", name: "Telugu", country: "Regional" },
-  { code: "th", name: "Thai", country: "Thailand" },
-  { code: "tet", name: "Tetum", country: "East Timor" },
-  { code: "tts", name: "Isan", country: "Thailand" },
+  { code: "ta", name: "தமிழ்", country: "Malaysia" },
+  { code: "ta-sg", name: "சிங்கப்பூர் தமிழ்", country: "Singapore" },
+  { code: "te", name: "తెలుగు", country: "Regional" },
+  { code: "th", name: "ไทย", country: "Thailand" },
+  { code: "tet", name: "Tetun", country: "East Timor" },
+  { code: "tts", name: "ภาษาอีสาน", country: "Thailand" },
   // U
-  { code: "ur", name: "Urdu", country: "Regional" },
+  { code: "ur", name: "اردو", country: "Regional" },
   // V
-  { code: "vi", name: "Vietnamese", country: "Vietnam" },
+  { code: "vi", name: "Tiếng Việt", country: "Vietnam" },
   // W
-  { code: "war", name: "Waray", country: "Philippines" }
+  { code: "war", name: "Winaray", country: "Philippines" }
 ].sort((a, b) => a.name.localeCompare(b.name));
 
 const UserProfileForm = ({ onProfileSubmit }) => {
