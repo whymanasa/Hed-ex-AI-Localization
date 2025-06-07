@@ -41,5 +41,8 @@
   "question": "Pertanyaan",
   "answer": "Jawaban",
   "select_answer": "Pilih jawaban Anda",
-  "quiz_results": "Hasil Kuis"
+  "quiz_results": "Hasil Kuis",
+  "or": "atau",
+  "app_title": "Hex Add Localizer",
+  "summarize_button": "Ringkas"
 } 

@@ -202,8 +202,8 @@ function ContentQuiz({ content, language, onClose }) {
         return (
             <div className="p-6">
                 <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-800 mx-auto"></div>
-                    <p className="mt-4 text-gray-600">{t('processing')}</p>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4E6688] mx-auto"></div>
+                    <p className="mt-4 text-[#4E6688]">{t('processing')}</p>
                 </div>
             </div>
         );
@@ -217,13 +217,13 @@ function ContentQuiz({ content, language, onClose }) {
                     <div className="space-x-4">
                         <button
                             onClick={resetQuiz}
-                            className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900"
+                            className="bg-[#4E6688] text-[#E3EEB2] px-4 py-2 rounded-lg hover:bg-[#332D56]"
                         >
                             {t('try_again')}
                         </button>
                         <button
                             onClick={onClose}
-                            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                            className="bg-[#71C0BB] text-[#332D56] px-4 py-2 rounded-lg hover:bg-[#4E6688] hover:text-[#E3EEB2]"
                         >
                             {t('close_quiz')}
                         </button>
@@ -237,40 +237,10 @@ function ContentQuiz({ content, language, onClose }) {
         return (
             <div className="p-6">
                 <div className="text-center">
-                    <p className="text-gray-600">{t('no_quiz_attempts')}</p>
+                    <p className="text-[#4E6688]">{t('no_quiz_attempts')}</p>
                     <button
                         onClick={onClose}
-                        className="mt-4 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-                    >
-                        {t('close_quiz')}
-                    </button>
-                </div>
-            </div>
-        );
-    }
-
-    if (score !== null) {
-        return (
-            <div className="p-6">
-                <h2 className="text-2xl font-bold mb-4">{t('quiz_results')}</h2>
-                <p className="text-xl mb-2">{t('your_score')}: {score.toFixed(1)}%</p>
-                <p className="text-lg mb-4">{feedback}</p>
-                <div className="flex justify-between">
-                    <button
-                        onClick={resetQuiz}
-                        className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900"
-                    >
-                        {t('try_again')}
-                    </button>
-                    <button
-                        onClick={handleDownload}
-                        className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900"
-                    >
-                        {t('download_pdf')}
-                    </button>
-                    <button
-                        onClick={onClose}
-                        className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                        className="mt-4 bg-[#71C0BB] text-[#332D56] px-4 py-2 rounded-lg hover:bg-[#4E6688] hover:text-[#E3EEB2]"
                     >
                         {t('close_quiz')}
                     </button>
@@ -280,55 +250,103 @@ function ContentQuiz({ content, language, onClose }) {
     }
 
     const currentQ = questions[currentQuestion];
+
     return (
-        <div className="p-6">
-            <div className="mb-4">
-                <h2 className="text-xl font-bold mb-2">{t('question')} {currentQuestion + 1} {t('or')} {questions.length}</h2>
-                <p className="text-lg">{currentQ.question}</p>
-            </div>
-            <div className="space-y-3">
-                {currentQ.options.map((option, index) => (
-                    <button
-                        key={index}
-                        onClick={() => handleAnswer(option)}
-                        className={`w-full text-left p-3 rounded-lg border ${
-                            userAnswers[currentQuestion] === option
-                                ? 'bg-gray-100 border-gray-800'
-                                : 'bg-white border-gray-300 hover:bg-gray-50'
-                        }`}
-                    >
-                        {option}
-                    </button>
-                ))}
-            </div>
-            <div className="mt-6 flex justify-between">
+        <div className="p-6 bg-white rounded-lg shadow-xl">
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-[#332D56]">{t('quiz_title')}</h2>
                 <button
-                    onClick={handlePrevious}
-                    disabled={currentQuestion === 0}
-                    className={`px-4 py-2 rounded ${
-                        currentQuestion === 0
-                            ? 'bg-gray-300 cursor-not-allowed'
-                            : 'bg-gray-800 text-white hover:bg-gray-900'
-                    }`}
+                    onClick={onClose}
+                    className="text-[#4E6688] hover:text-[#332D56] text-3xl leading-none"
                 >
-                    {t('previous_question')}
+                    &times;
                 </button>
-                {currentQuestion === questions.length - 1 ? (
-                    <button
-                        onClick={handleSubmit}
-                        className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900"
-                    >
-                        {t('submit_quiz')}
-                    </button>
-                ) : (
-                    <button
-                        onClick={handleNext}
-                        className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900"
-                    >
-                        {t('next_question')}
-                    </button>
-                )}
             </div>
+
+            {score === null ? (
+                // Quiz in progress
+                <div>
+                    <p className="text-sm text-[#4E6688] mb-4">
+                        {t('question')} {currentQuestion + 1} / {questions.length}
+                    </p>
+                    <h3 className="text-xl font-semibold text-[#332D56] mb-4">
+                        {currentQ.question}
+                    </h3>
+                    <div className="space-y-3">
+                        {currentQ.options.map((option, index) => (
+                            <button
+                                key={index}
+                                onClick={() => handleAnswer(option)}
+                                className={`w-full text-left p-3 border rounded-lg transition-colors duration-200
+                                    ${userAnswers[currentQuestion] === option
+                                        ? 'bg-[#71C0BB] text-[#332D56] border-[#4E6688]'
+                                        : 'bg-white text-[#4E6688] border-[#71C0BB] hover:bg-[#D0F5BE]'
+                                    }`}
+                            >
+                                {option}
+                            </button>
+                        ))}
+                    </div>
+                    <div className="mt-8 flex justify-between">
+                        <button
+                            onClick={handlePrevious}
+                            disabled={currentQuestion === 0}
+                            className="bg-[#71C0BB] text-[#332D56] px-6 py-2 rounded-lg hover:bg-[#4E6688] hover:text-[#E3EEB2] disabled:opacity-50 transition-colors duration-200"
+                        >
+                            {t('previous_question')}
+                        </button>
+                        {currentQuestion === questions.length - 1 ? (
+                            <button
+                                onClick={handleSubmit}
+                                disabled={!userAnswers.hasOwnProperty(currentQuestion)}
+                                className="bg-[#4E6688] text-[#E3EEB2] px-6 py-2 rounded-lg hover:bg-[#332D56] disabled:opacity-50 transition-colors duration-200"
+                            >
+                                {t('submit_quiz')}
+                            </button>
+                        ) : (
+                            <button
+                                onClick={handleNext}
+                                disabled={!userAnswers.hasOwnProperty(currentQuestion)}
+                                className="bg-[#4E6688] text-[#E3EEB2] px-6 py-2 rounded-lg hover:bg-[#332D56] disabled:opacity-50 transition-colors duration-200"
+                            >
+                                {t('next_question')}
+                            </button>
+                        )}
+                    </div>
+                </div>
+            ) : (
+                // Quiz results
+                <div className="text-center">
+                    <h3 className="text-2xl font-bold text-[#332D56] mb-4">{t('quiz_complete')}</h3>
+                    <p className="text-xl text-[#4E6688] mb-2">
+                        {t('your_score')}: <span className="font-bold text-[#332D56]">{score.toFixed(0)}%</span>
+                    </p>
+                    <p className="text-md text-[#4E6688] mb-4">
+                        ({t('correct_answers')}: {questions.filter((q, i) => userAnswers[i] === q.correctAnswer).length} / {questions.length})
+                    </p>
+                    <p className="text-lg text-[#4E6688] mb-6">{feedback}</p>
+                    <div className="space-x-4 mb-6">
+                        <button
+                            onClick={resetQuiz}
+                            className="bg-[#4E6688] text-[#E3EEB2] px-6 py-2 rounded-lg hover:bg-[#332D56] transition-colors duration-200"
+                        >
+                            {t('try_again')}
+                        </button>
+                        <button
+                            onClick={onClose}
+                            className="bg-[#71C0BB] text-[#332D56] px-6 py-2 rounded-lg hover:bg-[#4E6688] hover:text-[#E3EEB2] transition-colors duration-200"
+                        >
+                            {t('close_quiz')}
+                        </button>
+                    </div>
+                    <button
+                        onClick={handleDownload}
+                        className="bg-[#71C0BB] text-[#332D56] px-6 py-2 rounded-lg hover:bg-[#4E6688] hover:text-[#E3EEB2] transition-colors duration-200"
+                    >
+                        {t('download_pdf')}
+                    </button>
+                </div>
+            )}
         </div>
     );
 }

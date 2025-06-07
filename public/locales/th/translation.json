@@ -42,5 +42,6 @@
   "question": "คำถาม",
   "answer": "คำตอบ",
   "select_answer": "เลือกคำตอบของคุณ",
-  "quiz_results": "ผลการทดสอบ"
+  "quiz_results": "ผลการทดสอบ",
+  "summarize_button": "สรุป"
 } 

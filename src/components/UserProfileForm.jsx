@@ -100,7 +100,7 @@ const UserProfileForm = ({ onProfileSubmit }) => {
     onProfileSubmit(profileData);
     sessionStorage.setItem("userProfile", JSON.stringify(profileData));
     sessionStorage.setItem("preferredLanguage", profileData.preferredLanguage);
-    navigate("/home");
+    navigate("/main");
   };
 
   const filteredLanguages = useMemo(() => {
@@ -124,78 +124,82 @@ const UserProfileForm = ({ onProfileSubmit }) => {
   }, [filteredLanguages]);
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-md rounded">
-      <h2 className="text-xl font-semibold mb-4">{t("your_profile")}</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          name="name"
-          placeholder={t("name")}
-          value={profileData.name}
-          onChange={handleChange}
-          className="w-full px-4 py-2 border rounded"
-          required
-        />
-        <input
-          type="number"
-          name="age"
-          placeholder={t("age")}
-          value={profileData.age}
-          onChange={handleChange}
-          className="w-full px-4 py-2 border rounded"
-          required
-        />
-        <input
-          type="text"
-          name="interests"
-          placeholder={t("interests")}
-          value={profileData.interests}
-          onChange={handleChange}
-          className="w-full px-4 py-2 border rounded"
-          required
-        />
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            {t("select_language")}
-          </label>
-          <p className="text-sm text-gray-500 mb-2">
-            {t("language_description")}
-          </p>
-          <div className="relative">
-            <input
-              type="text"
-              placeholder={t("search_languages")}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-2 border rounded mb-2"
-            />
-            <select
-              name="preferredLanguage"
-              value={profileData.preferredLanguage}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded"
-              required
-            >
-              <option value="">{t("select_preferred_language")}</option>
-              {Object.entries(groupedLanguages).map(([country, languages]) => (
-                <optgroup key={country} label={country}>
-                  {languages.map((lang) => (
-                    <option key={lang.code} value={lang.code}>
-                      {lang.name}
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
+    <div className="min-h-screen flex items-center justify-center bg-[#E3EEB2] p-4">
+      <div className="max-w-md w-full p-6 bg-white shadow-lg rounded-xl">
+        <h2 className="text-2xl font-bold text-[#332D56] mb-6 text-center">
+          {t("your_profile")}
+        </h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="text"
+            name="name"
+            placeholder={t("name")}
+            value={profileData.name}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border border-[#71C0BB] rounded-lg focus:ring-2 focus:ring-[#4E6688] focus:border-transparent outline-none transition-all duration-200"
+            required
+          />
+          <input
+            type="number"
+            name="age"
+            placeholder={t("age")}
+            value={profileData.age}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border border-[#71C0BB] rounded-lg focus:ring-2 focus:ring-[#4E6688] focus:border-transparent outline-none transition-all duration-200"
+            required
+          />
+          <input
+            type="text"
+            name="interests"
+            placeholder={t("interests")}
+            value={profileData.interests}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border border-[#71C0BB] rounded-lg focus:ring-2 focus:ring-[#4E6688] focus:border-transparent outline-none transition-all duration-200"
+            required
+          />
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-[#4E6688]">
+              {t("select_language")}
+            </label>
+            <p className="text-sm text-[#4E6688] mb-2">
+              {t("language_description")}
+            </p>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder={t("search_languages")}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-4 py-2 border border-[#71C0BB] rounded-lg mb-2 focus:ring-2 focus:ring-[#4E6688] focus:border-transparent outline-none transition-all duration-200"
+              />
+              <select
+                name="preferredLanguage"
+                value={profileData.preferredLanguage}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-[#71C0BB] rounded-lg focus:ring-2 focus:ring-[#4E6688] focus:border-transparent outline-none transition-all duration-200 bg-white"
+                required
+              >
+                <option value="">{t("select_preferred_language")}</option>
+                {Object.entries(groupedLanguages).map(([country, languages]) => (
+                  <optgroup key={country} label={country}>
+                    {languages.map((lang) => (
+                      <option key={lang.code} value={lang.code}>
+                        {lang.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
+            </div>
           </div>
-        </div>
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
-        >
-          {t("save_and_continue")}
-        </button>
-      </form>
+          <button
+            type="submit"
+            className="w-full bg-[#4E6688] text-[#E3EEB2] py-2 px-4 rounded-lg hover:bg-[#332D56] transition-colors duration-200 font-semibold shadow-md"
+          >
+            {t("save_and_continue")}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

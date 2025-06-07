@@ -60,7 +60,27 @@
     "score": "Score",
     "view_details": "View Details",
     "or": "or",
-    "app_title": "Hex Ed Localiser"
+    "app_title": "Hex Ed Localiser",
+    "summarize_button": "Summarize",
+    "landing_title": "Built for me",
+    "landing_subtitle": "Transforming education by localizing content and valuing every student's unique language and culture.",
+    "try_it": "Try it out",
+    "settings": "Settings",
+    "select_language_description": "Please choose the language you'd like to use for the application.",
+    "full_name": "Full Name",
+    "email": "Email",
+    "preferred_language": "Preferred Language",
+    "save_changes": "Save Changes",
+    "upload_pdf_placeholder": "Upload your PDF here...",
+    "generate_quiz": "Generate Quiz",
+    "input_form_heading": "Input Content",
+    "output_display_heading": "Output",
+    "quiz_heading": "Quiz",
+    "download_options": "Download Options",
+    "download_docx": "Download DOCX",
+    "download_txt": "Download TXT",
+    "uploading_file": "Uploading file...",
+    "file_upload_success": "Successfully loaded file."
 }
 
   

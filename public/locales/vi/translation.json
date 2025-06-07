@@ -5,9 +5,9 @@
   "select_target_language": "Chọn Ngôn ngữ Đích",
   "translate_button": "Dịch và Bản địa hóa",
   "processing": "Đang xử lý...",
-  "choose_language": "Chọn Ngôn ngữ của Bạn",
   
-  // User Profile Form
+  
+  
   "your_profile": "Hồ sơ của Bạn",
   "name": "Tên",
   "age": "Tuổi",
@@ -18,7 +18,7 @@
   "search_languages": "Tìm kiếm ngôn ngữ...",
   "select_preferred_language": "Chọn ngôn ngữ ưa thích của bạn",
 
-  // Navbar
+  
   "home": "Trang chủ",
   "courses": "Khóa học",
   "profile": "Hồ sơ",
@@ -47,5 +47,6 @@
   "question": "Câu hỏi",
   "answer": "Trả lời",
   "select_answer": "Chọn câu trả lời của bạn",
-  "quiz_results": "Kết quả Bài kiểm tra"
+  "quiz_results": "Kết quả Bài kiểm tra",
+  "summarize_button": "Tóm tắt"
 } 

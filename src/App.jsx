@@ -1,83 +1,43 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useNavigate, Navigate } from 'react-router-dom';
-import InputForm from './components/InputForm';
-import OutputDisplay from './components/OutputDisplay';
-import UserProfileForm from './components/UserProfileForm';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import LanguageSelectorLanding from './components/LanguageSelectorLanding';
+import UserProfileForm from './components/UserProfileForm';
+import MainContent from './components/MainContent';
+import LandingPage from './components/LandingPage';
 import Navbar from './components/Navbar';
 
-function Home({ localizedContent, setLocalizedContent, userProfile, preferredLanguage }) {
-  if (!preferredLanguage) {
-    return <Navigate to="/language" replace />;
-  }
-
-  return (
-    <div className="flex p-6 gap-6 h-[calc(100vh-80px)]">
-      <InputForm 
-        setLocalizedContent={setLocalizedContent} 
-        userProfile={userProfile}
-        preferredLanguage={preferredLanguage}
-      />
-      <OutputDisplay 
-        localizedContent={localizedContent} 
-        language={preferredLanguage}
-      />
-    </div>
-  );
-}
-
 function App() {
-  const [localizedContent, setLocalizedContent] = useState('');
-  const [userProfile, setUserProfile] = useState(null);
-  
-  const [preferredLanguage, setPreferredLanguage] = useState(() => {
-    return sessionStorage.getItem('preferredLanguage') || '';
+  const [messages, setMessages] = useState(() => {
+    const storedMessages = sessionStorage.getItem('chatMessages');
+    return storedMessages ? JSON.parse(storedMessages) : [];
   });
 
   useEffect(() => {
-    const storedProfile = sessionStorage.getItem('userProfile');
-    if (storedProfile) {
-      setUserProfile(JSON.parse(storedProfile));
-    }
-  }, []);
-
-  const handleLanguageSelect = (langCode) => {
-    setPreferredLanguage(langCode);
-    sessionStorage.setItem('preferredLanguage', langCode);
-  };
+    sessionStorage.setItem('chatMessages', JSON.stringify(messages));
+  }, [messages]);
 
   const handleProfileSubmit = (profileData) => {
-    setUserProfile(profileData);
-    setPreferredLanguage(profileData.preferredLanguage);
+    console.log("Profile submitted:", profileData);
+    // In a real application, you might save this to a global state or context
+  };
+
+  const handleLanguageSelection = (langCode) => {
+    console.log("Language selected:", langCode);
+    // You might store this in a global state or context as well
   };
 
   return (
     <Router>
-      <Navbar />
-
-      <Routes>
-        <Route path="/" element={
-          <Navigate to="/language" replace />
-        } />
-        <Route path="/language" element={
-          <LanguageSelectorLanding onLanguageSelect={handleLanguageSelect} />
-        } />
-        <Route path="/profile" element={
-          preferredLanguage ? (
-            <UserProfileForm onProfileSubmit={handleProfileSubmit} />
-          ) : (
-            <Navigate to="/language" replace />
-          )
-        } />
-        <Route path="/home" element={
-          <Home
-            localizedContent={localizedContent}
-            setLocalizedContent={setLocalizedContent}
-            userProfile={userProfile}
-            preferredLanguage={preferredLanguage}
-          />
-        } />
-      </Routes>
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/language-selector" element={<LanguageSelectorLanding onLanguageSelect={handleLanguageSelection} />} />
+          <Route path="/profile" element={<UserProfileForm onProfileSubmit={handleProfileSubmit} />} />
+          <Route path="/main" element={<MainContent messages={messages} setMessages={setMessages} />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </div>
     </Router>
   );
 }

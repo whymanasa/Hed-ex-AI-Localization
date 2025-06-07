@@ -2,12 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 
-function InputForm({ setLocalizedContent, preferredLanguage }) {
+function InputForm({ setLocalizedContent, preferredLanguage, messages, setMessages }) {
   const { t } = useTranslation();
   const [courseContent, setCourseContent] = useState('');
   const [loading, setLoading] = useState(false);
+  const [summarizing, setSummarizing] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
-  const [messages, setMessages] = useState([]);
   const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);
 
@@ -31,6 +31,12 @@ function InputForm({ setLocalizedContent, preferredLanguage }) {
     if (!file) return;
 
     try {
+      // Add message about file upload
+      setMessages(prev => [...prev, { 
+        type: 'system', 
+        content: `File uploaded: ${file.name}`
+      }]);
+
       // For text files, read them directly
       if (file.type === 'text/plain' || file.type === 'text/markdown') {
         const content = await new Promise((resolve, reject) => {
@@ -69,7 +75,7 @@ function InputForm({ setLocalizedContent, preferredLanguage }) {
 
     setLoading(true);
     if (courseContent.trim() && !fileInputRef.current?.files[0]) {
-        setMessages(prev => [...prev, { type: 'user', content: courseContent }]);
+      setMessages(prev => [...prev, { type: 'user', content: courseContent }]);
     }
 
     try {
@@ -126,8 +132,78 @@ function InputForm({ setLocalizedContent, preferredLanguage }) {
     }
   };
 
+  const handleSummarize = async (e) => {
+    e.preventDefault();
+
+    if (!userProfile) {
+      alert("Please complete your profile first.");
+      return;
+    }
+
+    if (!courseContent.trim() && !fileInputRef.current?.files[0]) {
+      alert("Please enter some content or upload a file to summarize.");
+      return;
+    }
+
+    setSummarizing(true);
+    setMessages(prev => [...prev, { type: 'user', content: courseContent }]);
+
+    try {
+      const formData = new FormData();
+      const profileToSend = {
+        ...userProfile,
+        preferredLanguage: userProfile.preferredLanguage || 'en'
+      };
+      formData.append('profile', JSON.stringify(profileToSend));
+
+      if (fileInputRef.current?.files[0]) {
+        formData.append('file', fileInputRef.current.files[0]);
+      } else {
+        formData.append('content', courseContent);
+      }
+
+      const response = await axios.post('http://localhost:3000/summarize', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (response.data.summary) {
+        setLocalizedContent(response.data.summary);
+        setMessages(prev => [...prev, {
+          type: 'assistant',
+          content: response.data.summary
+        }]);
+      } else {
+        throw new Error('No summary received from server');
+      }
+    } catch (error) {
+      console.error('Summarization error:', error.response?.data || error.message);
+      const errorMessage = error.response?.data?.details
+        ? Object.values(error.response.data.details).filter(Boolean).join(', ')
+        : error.response?.data?.error || error.message || 'Something went wrong during summarization. Please try again.';
+
+      setMessages(prev => [...prev, {
+        type: 'error',
+        content: errorMessage
+      }]);
+    }
+
+    setSummarizing(false);
+    setCourseContent('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleMessageClick = (message) => {
+    if (message.type === 'assistant') {
+      setLocalizedContent(message.content);
+    }
+  };
+
   return (
-    <div className="flex flex-col flex-1 border border-gray-300 rounded-lg overflow-hidden bg-white">
+    <div className="flex flex-col flex-1 border border-[#71C0BB] rounded-lg overflow-hidden bg-white">
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((message, index) => (
           <div
@@ -135,12 +211,15 @@ function InputForm({ setLocalizedContent, preferredLanguage }) {
             className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
+              onClick={() => handleMessageClick(message)}
               className={`max-w-[80%] rounded-lg p-4 ${
                 message.type === 'user'
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-[#4E6688] text-[#E3EEB2]'
                   : message.type === 'error'
                   ? 'bg-red-100 text-red-800'
-                  : 'bg-white shadow-md'
+                  : message.type === 'system'
+                  ? 'bg-gray-100 text-gray-600'
+                  : 'bg-[#E3EEB2] text-[#4E6688] shadow-md hover:shadow-lg cursor-pointer transition-shadow duration-200'
               }`}
             >
               <div className="whitespace-pre-wrap">{message.content}</div>
@@ -150,13 +229,13 @@ function InputForm({ setLocalizedContent, preferredLanguage }) {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="border-t border-gray-200 p-4 bg-white">
+      <div className="border-t border-[#71C0BB] p-4 bg-white">
         <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
           <div className="flex items-center space-x-2">
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="p-2 text-blue-600 hover:text-blue-800"
+              className="p-2 text-[#4E6688] hover:text-[#332D56]"
               title="Upload file"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -173,7 +252,7 @@ function InputForm({ setLocalizedContent, preferredLanguage }) {
           </div>
           <div className="flex space-x-2">
             <textarea
-              className="flex-1 p-3 border border-gray-300 rounded-md resize-none"
+              className="flex-1 p-3 border border-[#71C0BB] rounded-md resize-none focus:ring-2 focus:ring-[#4E6688] focus:border-transparent outline-none transition-all duration-200"
               rows="3"
               placeholder={t("paste_course_content")}
               value={courseContent}
@@ -181,8 +260,8 @@ function InputForm({ setLocalizedContent, preferredLanguage }) {
             />
             <button
               type="submit"
-              className="px-6 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-              disabled={loading}
+              className="px-6 bg-[#4E6688] text-[#E3EEB2] rounded-md hover:bg-[#332D56] disabled:opacity-50 transition-colors duration-200"
+              disabled={loading || summarizing}
             >
               {loading ? (
                 <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -191,6 +270,21 @@ function InputForm({ setLocalizedContent, preferredLanguage }) {
                 </svg>
               ) : (
                 t("translate_button")
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={handleSummarize}
+              className="px-6 bg-[#71C0BB] text-[#332D56] rounded-md hover:bg-[#4E6688] hover:text-[#E3EEB2] disabled:opacity-50 transition-colors duration-200"
+              disabled={loading || summarizing}
+            >
+              {summarizing ? (
+                <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              ) : (
+                t("summarize_button")
               )}
             </button>
           </div>

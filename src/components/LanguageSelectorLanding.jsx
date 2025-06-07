@@ -48,13 +48,12 @@ const LanguageSelectorLanding = ({ onLanguageSelect }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#E3EEB2] py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-[#332D56] mb-4">
             🌏 {t("choose_language")}
           </h1>
-          
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
@@ -64,8 +63,8 @@ const LanguageSelectorLanding = ({ onLanguageSelect }) => {
               onClick={() => handleLanguageSelect(lang.code)}
               className={`p-4 rounded-lg text-center transition-all duration-200 transform hover:scale-105 ${
                 selectedLanguage === lang.code
-                  ? "bg-gray-900 text-white shadow-lg"
-                  : "bg-white text-gray-800 hover:bg-gray-50 shadow-md"
+                  ? "bg-[#332D56] text-[#E3EEB2] shadow-lg"
+                  : "bg-[#71C0BB] text-[#332D56] hover:bg-[#4E6688] hover:text-[#E3EEB2] shadow-md"
               }`}
             >
               <div className="font-medium text-lg">{lang.name}</div>
@@ -76,7 +75,7 @@ const LanguageSelectorLanding = ({ onLanguageSelect }) => {
         <div className="text-center">
           <button
             onClick={handleSubmit}
-            className="inline-flex items-center px-8 py-3 border border-transparent text-lg font-medium rounded-lg text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200 shadow-lg"
+            className="inline-flex items-center px-8 py-3 border border-transparent text-lg font-medium rounded-lg text-[#E3EEB2] bg-[#4E6688] hover:bg-[#332D56] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4E6688] transition-colors duration-200 shadow-lg"
           >
             {t("save_and_continue")}
           </button>
